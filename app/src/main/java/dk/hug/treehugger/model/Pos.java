@@ -1,0 +1,28 @@
+package dk.hug.treehugger.model;
+
+import com.google.android.gms.maps.model.LatLng;
+
+import io.nlopez.clusterer.Clusterable;
+
+/**
+ * Created by  Mads Fisker @ Dis-Play on 2016 - 10/03/16  10:17.
+ */
+public class Pos implements Clusterable {
+
+    private String name;
+    private LatLng position;
+
+    public Pos(String name, LatLng position) {
+        this.name = name;
+        this.position = position;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public LatLng getPosition() {
+        return position;
+    }
+}
