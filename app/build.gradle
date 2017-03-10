@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    compileSdkVersion 25
+    buildToolsVersion '25.0.0'
 
     defaultConfig {
         applicationId "dk.hug.treehugger"
@@ -25,14 +25,16 @@ dependencies {
     testCompile 'junit:junit:4.12'
 
 
-    compile 'com.android.support:appcompat-v7:23.2.0'
+    compile 'com.android.support:appcompat-v7:25.0.0'
     compile 'com.fasterxml.jackson.core:jackson-core:2.7.2'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.0.1'
-    compile 'com.android.support:design:23.2.0'
+    compile 'com.android.support:design:25.0.0'
     compile 'com.jakewharton:butterknife:7.0.1'
     compile 'com.google.android.gms:play-services:8.4.0'
     compile 'com.android.support:multidex:1.0.1'
     compile 'io.nlopez.clusterer:library:1.0.6'
     compile 'com.google.maps.android:android-maps-utils:0.4'
     compile 'com.androidmapsextensions:android-maps-extensions:2.2.1'
+    compile 'com.airbnb.android:lottie:1.5.3'
+
 }

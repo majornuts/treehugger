@@ -13,15 +13,16 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
 
 import dk.hug.treehugger.core.DBhandler;
+import dk.hug.treehugger.core.application;
 import dk.hug.treehugger.model.Feature;
-import dk.hug.treehugger.model.Pos2;
+import dk.hug.treehugger.model.Pos;
 import dk.hug.treehugger.model.Root;
 
 public class MapsActivity extends FragmentActivity  {
 
     private static final String TAG = "MapsActivity";
     private GoogleMap mMap;
-    private Root root;
+
     private GoogleApiClient client;
 
     @Override
@@ -29,7 +30,8 @@ public class MapsActivity extends FragmentActivity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_maps);
 
-        root = DBhandler.getTrees(this);
+
+
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
         mMap = ((com.androidmapsextensions.SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getExtendedMap();
         mMap.getUiSettings().setRotateGesturesEnabled(false);
@@ -38,6 +40,7 @@ public class MapsActivity extends FragmentActivity  {
         LatLng dis = new LatLng( 55.678814,12.564026);
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(dis,14));
         initMarkers();
+        application.stopProgress();
     }
 
 
@@ -45,14 +48,18 @@ public class MapsActivity extends FragmentActivity  {
 
         mMap.setClustering(new ClusteringSettings().enabled(true).addMarkersDynamically(true).clusterSize(75));
 
+        Root root = DBhandler.getTrees(this);
+
         for (int i = 0; i < root.getFeatures().size(); i++) {
             Feature feature = root.getFeatures().get(i);
             double lat = feature.getGeometry().getCoordinates().get(1);
             double lng = feature.getGeometry().getCoordinates().get(0);
             LatLng geo = new LatLng(lat, lng);
 
-            Pos2 pos = new Pos2(feature.getProperties().getDanskNavn(), geo);
-            MarkerOptions marker =new MarkerOptions().position(pos.getPosition()).title(pos.getName()).snippet(feature.getProperties().getTraeArt());
+            Pos pos = new Pos(feature.getProperties().getDanskNavn(), geo);
+            MarkerOptions marker =new MarkerOptions()
+                    .position(pos.getPosition()).title(pos.getName())
+                    .snippet(feature.getProperties().getTraeArt());
             mMap.addMarker(marker);
         }
     }
@@ -95,9 +102,6 @@ public class MapsActivity extends FragmentActivity  {
         AppIndex.AppIndexApi.end(client, viewAction);
         client.disconnect();
     }
-
-
-
 }
 
 

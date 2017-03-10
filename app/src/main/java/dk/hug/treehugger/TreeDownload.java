@@ -21,7 +21,7 @@ import dk.hug.treehugger.model.Root;
 
 
 /**
- * Created by  Mads Fisker @ Dis-Play on 2016 - 08/03/16  13:08.
+ * Created by  Mads Fisker on 2016 - 08/03/16  13:08.
  */
 public class TreeDownload extends AsyncTask<Void, Void, Root> {
     private static final String TAG = "TreeDownload";
@@ -63,6 +63,7 @@ public class TreeDownload extends AsyncTask<Void, Void, Root> {
         super.onPreExecute();
         time = System.currentTimeMillis();
         progress = new ProgressDialog(context);
+        progress.setMessage("downloading trees");
         progress.show();
 
     }
@@ -72,6 +73,9 @@ public class TreeDownload extends AsyncTask<Void, Void, Root> {
         DBhandler.storeTrees(context,root);
         Log.e(TAG, "onPostExecute:download time:" + (System.currentTimeMillis() -time));
         progress.dismiss();
+
+
+
     }
 
 }
