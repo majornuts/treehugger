@@ -11,6 +11,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -46,16 +47,9 @@ public class MapsActivity extends AppCompatActivity {
         progressDialog = new ProgressDialog(this);
 
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
-        mMap = ((com.androidmapsextensions.SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getExtendedMap();
-        mMap.getUiSettings().setRotateGesturesEnabled(false);
-        mMap.getUiSettings().setTiltGesturesEnabled(false);
-        mMap.getUiSettings().setMyLocationButtonEnabled(true);
-        LatLng dis = new LatLng(55.678814, 12.564026);
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(dis, 14));
+        initmap();
 
-        mMap.setClustering(new ClusteringSettings().enabled(true).addMarkersDynamically(true).clusterSize(75));
-
-        if (DBhandler.getTreeState(this) != 0) {
+        if (DBhandler.getTreeState(this) != 1) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage("do you want to download trees?")
                     .setNegativeButton("no", null)
@@ -71,13 +65,23 @@ public class MapsActivity extends AppCompatActivity {
                                     return false;
                                 }
                             }).execute();
-
-
                         }
                     }).show();
         } else {
             new MapLoader().execute();
         }
+    }
+
+    private void initmap() {
+        mMap = ((com.androidmapsextensions.SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getExtendedMap();
+        mMap.clear();
+        mMap.getUiSettings().setRotateGesturesEnabled(false);
+        mMap.getUiSettings().setTiltGesturesEnabled(false);
+        mMap.getUiSettings().setMyLocationButtonEnabled(true);
+        LatLng dis = new LatLng(55.678814, 12.564026);
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(dis, 14));
+
+        mMap.setClustering(new ClusteringSettings().enabled(true).addMarkersDynamically(true).clusterSize(75));
     }
 
 
@@ -133,10 +137,20 @@ public class MapsActivity extends AppCompatActivity {
             case R.id.map:
 
                 break;
-            case R.id.heatmap:
+            case R.id.Heatmap:
                 startActivity(new Intent(this, HeatMapsActivity.class));
                 break;
             case R.id.updateTrees:
+                initmap();
+                new TreeDownload(MapsActivity.this, new Handler.Callback() {
+                    @Override
+                    public boolean handleMessage(Message msg) {
+                        if(msg.getData().getBoolean("isDone")){
+                            new MapLoader().execute();
+                        }
+                        return false;
+                    }
+                }).execute();
                 break;
         }
 
