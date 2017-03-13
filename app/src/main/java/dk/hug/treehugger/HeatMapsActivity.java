@@ -2,6 +2,7 @@ package dk.hug.treehugger;
 
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.SparseArray;
 import android.widget.Toast;
 
@@ -24,7 +25,7 @@ import dk.hug.treehugger.core.DBhandler;
 import dk.hug.treehugger.model.Feature;
 import dk.hug.treehugger.model.Root;
 
-public class HeatMapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class HeatMapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private HeatmapTileProvider mProvider;

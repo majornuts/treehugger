@@ -35,6 +35,6 @@ dependencies {
     compile 'io.nlopez.clusterer:library:1.0.6'
     compile 'com.google.maps.android:android-maps-utils:0.4'
     compile 'com.androidmapsextensions:android-maps-extensions:2.2.1'
-    compile 'com.airbnb.android:lottie:1.5.3'
+//    compile 'com.airbnb.android:lottie:1.5.3'
 
 }

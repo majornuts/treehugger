@@ -4,6 +4,10 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.PersistableBundle;
 import android.util.Log;
 import android.widget.ProgressBar;
 
@@ -26,11 +30,13 @@ import dk.hug.treehugger.model.Root;
 public class TreeDownload extends AsyncTask<Void, Void, Root> {
     private static final String TAG = "TreeDownload";
     private final Context context;
+    private final Handler.Callback sa;
     private long time;
     private ProgressDialog progress;
 
-    public TreeDownload(Context context) {
+    public TreeDownload(Context context, Handler.Callback startActivity) {
         this.context = context;
+        this.sa = startActivity;
     }
 
     @Override
@@ -70,11 +76,19 @@ public class TreeDownload extends AsyncTask<Void, Void, Root> {
 
     @Override
     protected void onPostExecute(Root root) {
-        DBhandler.storeTrees(context,root);
-        Log.e(TAG, "onPostExecute:download time:" + (System.currentTimeMillis() -time));
+        DBhandler.storeTrees(context, root);
+        DBhandler.storeTreeState(context, 1);
+        Log.e(TAG, "onPostExecute:download time:" + (System.currentTimeMillis() - time));
         progress.dismiss();
 
-
+        Bundle b = new Bundle();
+        b.putBoolean("isDone", true);
+        if (root == null) {
+            b.putBoolean("isDone", false);
+        }
+        Message m = new Message();
+        m.setData(b);
+        sa.handleMessage(m);
 
     }
 
