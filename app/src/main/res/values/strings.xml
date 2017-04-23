@@ -1,6 +1,7 @@
 <resources>
-    <string name="app_name">TreeHugger</string>
+    <string name="app_name">Copenhagen Trees</string>
     <string name="title_activity_maps">Map</string>
     <string name="google_app_id">596932254821</string>
     <string name="title_activity_heat_maps">Heat map</string>
+    <string name="banner_ad_unit_id">ca-app-pub-3261522955094157/2627895833</string>
 </resources>

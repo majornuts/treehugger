@@ -1,17 +1,20 @@
 package dk.hug.treehugger;
 
+import android.Manifest;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -19,14 +22,17 @@ import android.view.MenuItem;
 import com.androidmapsextensions.ClusteringSettings;
 import com.androidmapsextensions.GoogleMap;
 import com.androidmapsextensions.MarkerOptions;
+import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+
 import dk.hug.treehugger.core.DBhandler;
-import dk.hug.treehugger.core.application;
 import dk.hug.treehugger.model.Feature;
 import dk.hug.treehugger.model.Pos;
 import dk.hug.treehugger.model.Root;
@@ -39,10 +45,17 @@ public class MapsActivity extends AppCompatActivity {
     private GoogleApiClient client;
     private ProgressDialog progressDialog;
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_maps);
+
+        MobileAds.initialize(getApplicationContext(), "ca-app-pub-3261522955094157~1151162637");
+
+        AdView mAdView = (AdView) findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
+        mAdView.loadAd(adRequest);
 
         progressDialog = new ProgressDialog(this);
 
@@ -72,15 +85,35 @@ public class MapsActivity extends AppCompatActivity {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private boolean hasPermission(String perm) {
+        return (PackageManager.PERMISSION_GRANTED == checkSelfPermission(perm));
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private boolean canAccessLocation() {
+        return (hasPermission(Manifest.permission.ACCESS_FINE_LOCATION));
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private void initmap() {
         mMap = ((com.androidmapsextensions.SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getExtendedMap();
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION},
+                    2);
+        }
+        if (canAccessLocation()) {
+            mMap.setMyLocationEnabled(true);
+        }
         mMap.clear();
         mMap.getUiSettings().setRotateGesturesEnabled(false);
         mMap.getUiSettings().setTiltGesturesEnabled(false);
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
         LatLng dis = new LatLng(55.678814, 12.564026);
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(dis, 14));
-
         mMap.setClustering(new ClusteringSettings().enabled(true).addMarkersDynamically(true).clusterSize(75));
     }
 
@@ -88,7 +121,6 @@ public class MapsActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-
         client.connect();
         Action viewAction = Action.newAction(
                 Action.TYPE_VIEW, // TODO: choose an action type.
@@ -106,7 +138,6 @@ public class MapsActivity extends AppCompatActivity {
     @Override
     public void onStop() {
         super.onStop();
-
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         Action viewAction = Action.newAction(
@@ -141,7 +172,6 @@ public class MapsActivity extends AppCompatActivity {
                 startActivity(new Intent(this, HeatMapsActivity.class));
                 break;
             case R.id.updateTrees:
-                initmap();
                 new TreeDownload(MapsActivity.this, new Handler.Callback() {
                     @Override
                     public boolean handleMessage(Message msg) {
