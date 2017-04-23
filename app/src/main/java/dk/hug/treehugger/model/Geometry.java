@@ -1,7 +1,7 @@
 package dk.hug.treehugger.model;
 
 /**
- * Created by  Mads Fisker @ Dis-Play on 2016 - 09/03/16  20:58.
+ * Created by  Mads Fisker  on 2016 - 09/03/16  20:58.
  */
 
 import java.util.ArrayList;

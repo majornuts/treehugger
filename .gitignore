@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 *.iml
 .gradle
 /local.properties
@@ -7,7 +6,11 @@
 .DS_Store
 /build
 /captures
-=======
+
+/app/src/debug/res/values/google_maps_api.xml
+/app/src/release/res/values/google_maps_api.xml
+/app/src/main/res/values/API_keys.xml
+
 # Built application files
 *.apk
 *.ap_
@@ -48,4 +51,4 @@ captures/
 
 # Keystore files
 *.jks
->>>>>>> d03490227fd25347b1634c284e18cefd0dc47998
+

@@ -51,7 +51,8 @@ public class MapsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_maps);
 
-        MobileAds.initialize(getApplicationContext(), "ca-app-pub-3261522955094157~1151162637");
+
+        MobileAds.initialize(getApplicationContext(), this.getResources().getString(R.string.unit_id));
 
         AdView mAdView = (AdView) findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();

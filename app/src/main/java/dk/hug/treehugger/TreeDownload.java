@@ -47,9 +47,7 @@ public class TreeDownload extends AsyncTask<Void, Void, Root> {
         Root root = null;
         try {
             is = new URL(url).openStream();
-
             ObjectMapper mapper = new ObjectMapper();
-
             root = mapper.readValue(is, Root.class);
 
         } catch (JsonGenerationException e) {
