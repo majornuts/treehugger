@@ -15,6 +15,7 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -73,7 +74,7 @@ public class MapsActivity extends AppCompatActivity {
                             new TreeDownload(MapsActivity.this, new Handler.Callback() {
                                 @Override
                                 public boolean handleMessage(Message msg) {
-                                    if(msg.getData().getBoolean("isDone")){
+                                    if (msg.getData().getBoolean("isDone")) {
                                         new MapLoader().execute();
                                     }
                                     return false;
@@ -176,7 +177,7 @@ public class MapsActivity extends AppCompatActivity {
                 new TreeDownload(MapsActivity.this, new Handler.Callback() {
                     @Override
                     public boolean handleMessage(Message msg) {
-                        if(msg.getData().getBoolean("isDone")){
+                        if (msg.getData().getBoolean("isDone")) {
                             new MapLoader().execute();
                         }
                         return false;
@@ -192,7 +193,10 @@ public class MapsActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
+            long time = System.currentTimeMillis();
+
             Root root = DBhandler.getTrees(MapsActivity.this);
+            Log.d(TAG, "load time:" + (System.currentTimeMillis() - time));
             for (int i = 0; i < root.getFeatures().size(); i++) {
                 Feature feature = root.getFeatures().get(i);
                 double lat = feature.getGeometry().getCoordinates().get(1);
@@ -210,6 +214,7 @@ public class MapsActivity extends AppCompatActivity {
                     }
                 });
             }
+            Log.d(TAG, "draw time " + (System.currentTimeMillis() - time));
             return null;
         }
 
