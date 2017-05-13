@@ -2,9 +2,12 @@ package dk.hug.treehugger;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -12,6 +15,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.RequiresApi;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -19,6 +23,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.RelativeLayout;
 
 import com.androidmapsextensions.ClusteringSettings;
 import com.androidmapsextensions.GoogleMap;
@@ -42,6 +47,7 @@ public class MapsActivity extends AppCompatActivity {
 
     private static final String TAG = "MapsActivity";
     private GoogleMap mMap;
+    private RelativeLayout mRootView;
 
     private GoogleApiClient client;
     private ProgressDialog progressDialog;
@@ -52,6 +58,7 @@ public class MapsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_maps);
 
+        mRootView = (RelativeLayout) findViewById(R.id.rootView);
 
         MobileAds.initialize(getApplicationContext(), this.getResources().getString(R.string.unit_id));
 
@@ -65,23 +72,27 @@ public class MapsActivity extends AppCompatActivity {
         initmap();
 
         if (DBhandler.getTreeState(this) != 1) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("do you want to download trees?")
-                    .setNegativeButton("no", null)
-                    .setPositiveButton("yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            new TreeDownload(MapsActivity.this, new Handler.Callback() {
-                                @Override
-                                public boolean handleMessage(Message msg) {
-                                    if (msg.getData().getBoolean("isDone")) {
-                                        new MapLoader().execute();
+            if(checkConnectivity()) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage("do you want to download trees?")
+                        .setNegativeButton("no", null)
+                        .setPositiveButton("yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                new TreeDownload(MapsActivity.this, new Handler.Callback() {
+                                    @Override
+                                    public boolean handleMessage(Message msg) {
+                                        if (msg.getData().getBoolean("isDone")) {
+                                            new MapLoader().execute();
+                                        }
+                                        return false;
                                     }
-                                    return false;
-                                }
-                            }).execute();
-                        }
-                    }).show();
+                                }).execute();
+                            }
+                        }).show();
+            } else {
+                showNoInternet();
+            }
         } else {
             new MapLoader().execute();
         }
@@ -119,6 +130,18 @@ public class MapsActivity extends AppCompatActivity {
         mMap.setClustering(new ClusteringSettings().enabled(true).addMarkersDynamically(true).clusterSize(75));
     }
 
+    private boolean checkConnectivity() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+    }
+
+    private void showNoInternet() {
+        Snackbar.make(mRootView, R.string.no_internet, Snackbar.LENGTH_LONG).show();
+    }
 
     @Override
     public void onStart() {
@@ -174,15 +197,19 @@ public class MapsActivity extends AppCompatActivity {
                 startActivity(new Intent(this, HeatMapsActivity.class));
                 break;
             case R.id.updateTrees:
-                new TreeDownload(MapsActivity.this, new Handler.Callback() {
-                    @Override
-                    public boolean handleMessage(Message msg) {
-                        if (msg.getData().getBoolean("isDone")) {
-                            new MapLoader().execute();
+                if(checkConnectivity()) {
+                    new TreeDownload(MapsActivity.this, new Handler.Callback() {
+                        @Override
+                        public boolean handleMessage(Message msg) {
+                            if (msg.getData().getBoolean("isDone")) {
+                                new MapLoader().execute();
+                            }
+                            return false;
                         }
-                        return false;
-                    }
-                }).execute();
+                    }).execute();
+                } else {
+                    showNoInternet();
+                }
                 break;
         }
 
