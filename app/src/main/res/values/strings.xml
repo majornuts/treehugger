@@ -4,4 +4,5 @@
 
     <string name="title_activity_heat_maps">Heat map</string>
 
+    <string name="no_internet">No internet connection</string>
 </resources>
