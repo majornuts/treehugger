@@ -202,6 +202,7 @@ public class MapsActivity extends AppCompatActivity {
                         @Override
                         public boolean handleMessage(Message msg) {
                             if (msg.getData().getBoolean("isDone")) {
+                                mMap.clear();
                                 new MapLoader().execute();
                             }
                             return false;
