@@ -43,14 +43,14 @@ import dk.hug.treehugger.model.Feature;
 import dk.hug.treehugger.model.Pos;
 import dk.hug.treehugger.model.Root;
 
-public class MapsActivity extends AppCompatActivity {
+public class MapsActivity extends AppCompatActivity implements MapLoaderCallback {
 
     private static final String TAG = "MapsActivity";
     private GoogleMap mMap;
     private RelativeLayout mRootView;
 
     private GoogleApiClient client;
-    private ProgressDialog progressDialog;
+    private MapTasks mapTasks;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -66,35 +66,47 @@ public class MapsActivity extends AppCompatActivity {
         AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
         mAdView.loadAd(adRequest);
 
-        progressDialog = new ProgressDialog(this);
-
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
         initmap();
 
-        if (DBhandler.getTreeState(this) != 1) {
-            if(checkConnectivity()) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setMessage("do you want to download trees?")
-                        .setNegativeButton("no", null)
-                        .setPositiveButton("yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                new TreeDownload(MapsActivity.this, new Handler.Callback() {
-                                    @Override
-                                    public boolean handleMessage(Message msg) {
-                                        if (msg.getData().getBoolean("isDone")) {
-                                            new MapLoader().execute();
-                                        }
-                                        return false;
-                                    }
-                                }).execute();
-                            }
-                        }).show();
+        final MapLoader mapLoader = new MapLoader(MapsActivity.this, MapsActivity.this);
+        final TreeDownload treeDownload = new TreeDownload(MapsActivity.this, new Handler.Callback() {
+            @Override
+            public boolean handleMessage(Message msg) {
+                if (msg.getData().getBoolean("isDone")) {
+                    mMap.clear();
+                    mapLoader.execute();
+                }
+                return false;
+            }
+        });
+
+        if(getLastCustomNonConfigurationInstance()==null) {
+            mapTasks = new MapTasks(treeDownload, mapLoader);
+
+            if (DBhandler.getTreeState(this) != 1) {
+                if(checkConnectivity()) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setMessage("do you want to download trees?")
+                            .setNegativeButton("no", null)
+                            .setPositiveButton("yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    treeDownload.execute();
+                                }
+                            }).show();
+                } else {
+                    showNoInternet();
+                }
             } else {
-                showNoInternet();
+                mapLoader.execute();
             }
         } else {
-            new MapLoader().execute();
+            mapTasks = (MapTasks) getLastCustomNonConfigurationInstance();
+            if(mapTasks.getMapLoader().getStatus()== AsyncTask.Status.FINISHED) {
+                mapTasks.setMapLoader(new MapLoader(MapsActivity.this, MapsActivity.this));
+                mapTasks.getMapLoader().execute();
+            }
         }
     }
 
@@ -179,6 +191,15 @@ public class MapsActivity extends AppCompatActivity {
         client.disconnect();
     }
 
+    @Override
+    public MapTasks onRetainCustomNonConfigurationInstance() {
+        return mapTasks;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -198,16 +219,21 @@ public class MapsActivity extends AppCompatActivity {
                 break;
             case R.id.updateTrees:
                 if(checkConnectivity()) {
-                    new TreeDownload(MapsActivity.this, new Handler.Callback() {
-                        @Override
-                        public boolean handleMessage(Message msg) {
-                            if (msg.getData().getBoolean("isDone")) {
-                                mMap.clear();
-                                new MapLoader().execute();
+                    if(mapTasks.getTreeDownload().getStatus()== AsyncTask.Status.FINISHED) {
+                        final MapLoader mapLoader = new MapLoader(MapsActivity.this, MapsActivity.this);
+                        final TreeDownload treeDownload = new TreeDownload(MapsActivity.this, new Handler.Callback() {
+                            @Override
+                            public boolean handleMessage(Message msg) {
+                                if (msg.getData().getBoolean("isDone")) {
+                                    mMap.clear();
+                                    mapLoader.execute();
+                                }
+                                return false;
                             }
-                            return false;
-                        }
-                    }).execute();
+                        });
+                        mapTasks.setTreeDownload(treeDownload);
+                        mapTasks.getTreeDownload().execute();
+                    }
                 } else {
                     showNoInternet();
                 }
@@ -217,45 +243,14 @@ public class MapsActivity extends AppCompatActivity {
         return true;
     }
 
-    class MapLoader extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            long time = System.currentTimeMillis();
-
-            Root root = DBhandler.getTrees(MapsActivity.this);
-            Log.d(TAG, "load time:" + (System.currentTimeMillis() - time));
-            for (int i = 0; i < root.getFeatures().size(); i++) {
-                Feature feature = root.getFeatures().get(i);
-                double lat = feature.getGeometry().getCoordinates().get(1);
-                double lng = feature.getGeometry().getCoordinates().get(0);
-                LatLng geo = new LatLng(lat, lng);
-
-                Pos pos = new Pos(feature.getProperties().getDanskNavn(), geo);
-                final MarkerOptions marker = new MarkerOptions()
-                        .position(pos.getPosition()).title(pos.getName())
-                        .snippet(feature.getProperties().getTraeArt());
-                MapsActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mMap.addMarker(marker);
-                    }
-                });
+    @Override
+    public void plantTreeOnMap(final MarkerOptions tree) {
+        MapsActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mMap.addMarker(tree);
             }
-            Log.d(TAG, "draw time " + (System.currentTimeMillis() - time));
-            return null;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            progressDialog.setMessage("Planting trees on the map");
-            progressDialog.show();
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            progressDialog.dismiss();
-        }
+        });
     }
 }
 
