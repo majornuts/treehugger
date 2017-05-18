@@ -44,12 +44,10 @@ import dk.hug.treehugger.model.Feature;
 import dk.hug.treehugger.model.Pos;
 import dk.hug.treehugger.model.Root;
 
-public class HeatMapsActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class HeatMapsActivity extends AppCompatActivity implements OnMapReadyCallback, HeatMapLoaderCallback  {
 
     private GoogleMap mMap;
-    private HeatmapTileProvider mProvider;
-    private ProgressDialog pd;
-
+    private HeatMapLoader mapLoader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +65,6 @@ public class HeatMapsActivity extends AppCompatActivity implements OnMapReadyCal
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        pd = new ProgressDialog(this);
     }
 
 
@@ -93,7 +90,12 @@ public class HeatMapsActivity extends AppCompatActivity implements OnMapReadyCal
 
         LatLng dis = new LatLng(55.678814, 12.564026);
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(dis, 14));
-        new MapLoader().execute();
+        if(getLastCustomNonConfigurationInstance()==null) {
+            mapLoader = new HeatMapLoader(HeatMapsActivity.this, HeatMapsActivity.this);
+            mapLoader.execute();
+        } else {
+            mapLoader = (HeatMapLoader) getLastCustomNonConfigurationInstance();
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -132,41 +134,20 @@ public class HeatMapsActivity extends AppCompatActivity implements OnMapReadyCal
         return true;
     }
 
-    class MapLoader extends AsyncTask<Void, Void, Void> {
+    @Override
+    public HeatMapLoader onRetainCustomNonConfigurationInstance() {
+        return mapLoader;
+    }
 
-        @Override
-        protected Void doInBackground(Void... params) {
+    @Override
+    public void updateHeatMap(final TileOverlayOptions overlayOptions) {
 
-            ArrayList<LatLng> list = new ArrayList<>();
-            for (Feature feature : DBhandler.getTrees(HeatMapsActivity.this).getFeatures()) {
-                double lat = feature.getGeometry().getCoordinates().get(1);
-                double lng = feature.getGeometry().getCoordinates().get(0);
-                LatLng geo = new LatLng(lat, lng);
-                list.add(geo);
+        // Add a tile overlay to the map, using the heat map tile provider.
+        HeatMapsActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mMap.addTileOverlay(overlayOptions);
             }
-            mProvider = new HeatmapTileProvider.Builder()
-                    .data(list)
-                    .build();
-            // Add a tile overlay to the map, using the heat map tile provider.
-            HeatMapsActivity.this.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));
-                }
-            });
-
-            return null;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            pd.setMessage("Planting trees on the map");
-            pd.show();
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            pd.dismiss();
-        }
+        });
     }
 }
