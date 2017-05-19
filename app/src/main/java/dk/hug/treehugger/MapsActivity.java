@@ -103,10 +103,12 @@ public class MapsActivity extends AppCompatActivity implements MapLoaderCallback
             }
         } else {
             mapTasks = (MapTasks) getLastCustomNonConfigurationInstance();
-            if(mapTasks.getMapLoader().getStatus()== AsyncTask.Status.FINISHED) {
-                mapTasks.setMapLoader(new MapLoader(MapsActivity.this, MapsActivity.this));
-                mapTasks.getMapLoader().execute();
-            }
+            if(mapTasks.getMapLoader().getStatus()== AsyncTask.Status.RUNNING||
+                    mapTasks.getMapLoader().getStatus()== AsyncTask.Status.PENDING)
+                mapTasks.getMapLoader().cancel(true);
+
+            mapTasks.setMapLoader(new MapLoader(MapsActivity.this, MapsActivity.this));
+            mapTasks.getMapLoader().execute();
         }
     }
 
@@ -214,7 +216,8 @@ public class MapsActivity extends AppCompatActivity implements MapLoaderCallback
                 break;
             case R.id.updateTrees:
                 if(checkConnectivity()) {
-                    if(mapTasks.getTreeDownload().getStatus()== AsyncTask.Status.FINISHED) {
+                    if(mapTasks.getTreeDownload().getStatus()!=AsyncTask.Status.RUNNING &&
+                            mapTasks.getMapLoader().getStatus()!= AsyncTask.Status.RUNNING) {
                         final MapLoader mapLoader = new MapLoader(MapsActivity.this, MapsActivity.this);
                         final TreeDownload treeDownload = new TreeDownload(MapsActivity.this, new Handler.Callback() {
                             @Override
@@ -227,6 +230,7 @@ public class MapsActivity extends AppCompatActivity implements MapLoaderCallback
                             }
                         });
                         mapTasks.setTreeDownload(treeDownload);
+                        mapTasks.setMapLoader(mapLoader);
                         mapTasks.getTreeDownload().execute();
                     }
                 } else {
