@@ -87,9 +87,9 @@ public class MapsActivity extends AppCompatActivity implements MapLoaderCallback
             if (DBhandler.getTreeState(this) != 1) {
                 if(checkConnectivity()) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setMessage("do you want to download trees?")
-                            .setNegativeButton("no", null)
-                            .setPositiveButton("yes", new DialogInterface.OnClickListener() {
+                    builder.setMessage(R.string.download_question)
+                            .setNegativeButton(android.R.string.no, null)
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     treeDownload.execute();
