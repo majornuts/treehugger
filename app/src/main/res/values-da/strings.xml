@@ -7,4 +7,5 @@
 
     <string name="no_internet">Ingen internet forbindelse</string>
     <string name="download_question">Vil du hente træerne?</string>
+    <string name="update_trees">Opdater træer</string>
 </resources>

@@ -2,11 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/map"
-        android:title="Map" />
+        android:title="@string/title_activity_maps" />
     <item
         android:id="@+id/Heatmap"
-        android:title="Heat Map"/>
+        android:title="@string/title_activity_heat_maps"/>
     <item
         android:id="@+id/updateTrees"
-        android:title="Update trees"/>
+        android:title="@string/update_trees"/>
 </menu>
