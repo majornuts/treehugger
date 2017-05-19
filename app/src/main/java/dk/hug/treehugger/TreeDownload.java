@@ -32,7 +32,6 @@ public class TreeDownload extends AsyncTask<Void, Void, Root> {
     private final Context context;
     private final Handler.Callback sa;
     private long time;
-    private ProgressDialog progress;
 
     public TreeDownload(Context context, Handler.Callback startActivity) {
         this.context = context;
@@ -66,10 +65,6 @@ public class TreeDownload extends AsyncTask<Void, Void, Root> {
     protected void onPreExecute() {
         super.onPreExecute();
         time = System.currentTimeMillis();
-        progress = new ProgressDialog(context);
-        progress.setMessage("downloading trees");
-        progress.show();
-
     }
 
     @Override
@@ -77,7 +72,6 @@ public class TreeDownload extends AsyncTask<Void, Void, Root> {
         DBhandler.storeTrees(context, root);
         DBhandler.storeTreeState(context, 1);
         Log.e(TAG, "onPostExecute:download time:" + (System.currentTimeMillis() - time));
-        progress.dismiss();
 
         Bundle b = new Bundle();
         b.putBoolean("isDone", true);
