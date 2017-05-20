@@ -27,16 +27,19 @@ import dk.hug.treehugger.model.Root;
 /**
  * Created by  Mads Fisker on 2016 - 08/03/16  13:08.
  */
-public class TreeDownload extends AsyncTask<Void, Void, Void> {
+public class TreeDownload extends AsyncTask<Void, Integer, Void> {
     private static final String TAG = "TreeDownload";
     private final Context context;
     private final Handler.Callback sa;
+    private TreeDownloadCallback callback;
+
     private long time;
     private boolean isDone = false;
 
-    public TreeDownload(Context context, Handler.Callback startActivity) {
+    public TreeDownload(Context context, Handler.Callback startActivity, TreeDownloadCallback callback) {
         this.context = context;
         this.sa = startActivity;
+        this.callback = callback;
     }
 
     @Override
@@ -45,12 +48,16 @@ public class TreeDownload extends AsyncTask<Void, Void, Void> {
         String url = "http://wfs-kbhkort.kk.dk/k101/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=k101:gadetraer&outputFormat=json&SRSNAME=EPSG:4326";
         InputStream is = null;
         Root root = null;
+        publishProgress(1);
         try {
             is = new URL(url).openStream();
             ObjectMapper mapper = new ObjectMapper();
             root = mapper.readValue(is, Root.class);
 
+            publishProgress(50);
+
             DBhandler.storeTreeList(context, root);
+            publishProgress(100);
             isDone = true;
         } catch (JsonGenerationException e) {
             e.printStackTrace();
@@ -65,6 +72,12 @@ public class TreeDownload extends AsyncTask<Void, Void, Void> {
     }
 
     @Override
+    protected void onProgressUpdate(Integer... values) {
+        super.onProgressUpdate(values);
+        callback.updateDownloadProgress(values[0]);
+    }
+
+    @Override
     protected void onPreExecute() {
         super.onPreExecute();
         time = System.currentTimeMillis();
@@ -75,12 +88,23 @@ public class TreeDownload extends AsyncTask<Void, Void, Void> {
         DBhandler.storeTreeState(context, 1);
         Log.e(TAG, "onPostExecute:download time:" + (System.currentTimeMillis() - time));
 
+        callback.updateDownloadComplete(isDone);
+
         Bundle b = new Bundle();
         b.putBoolean("isDone", isDone);
         Message m = new Message();
         m.setData(b);
         sa.handleMessage(m);
     }
+
+    public TreeDownloadCallback getCallback() {
+        return callback;
+    }
+
+    public void setCallback(TreeDownloadCallback callback) {
+        this.callback = callback;
+    }
+
 }
 
 
