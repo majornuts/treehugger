@@ -5,4 +5,8 @@
     <string name="title_activity_heat_maps">Heat map</string>
 
     <string name="no_internet">No internet connection</string>
+    <string name="download_question">Do you want to download trees?</string>
+    <string name="update_trees">Update trees</string>
+    <string name="downloading_trees">Downloading trees</string>
+
 </resources>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Copenhagen Trees</string>
+    <string name="title_activity_maps">Kort</string>
+
+    <string name="title_activity_heat_maps">Intensitet kort</string>
+
+    <string name="no_internet">Ingen internet forbindelse</string>
+    <string name="download_question">Vil du hente træerne?</string>
+    <string name="update_trees">Opdater træer</string>
+    <string name="downloading_trees">Henter træer</string>
+</resources>

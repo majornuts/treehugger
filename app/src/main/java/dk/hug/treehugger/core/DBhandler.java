@@ -1,13 +1,19 @@
 package dk.hug.treehugger.core;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.Nullable;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+import dk.hug.treehugger.model.Feature;
 import dk.hug.treehugger.model.Root;
 
 /**
@@ -51,6 +57,49 @@ public class DBhandler {
             e.printStackTrace();
         }
         return root;
+    }
+
+    public static void storeTreeList(Context context, Root root) {
+        TreeDBHelper dbHelper = new TreeDBHelper(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        db.beginTransaction();
+
+        db.execSQL(TreeDBHelper.SQL_DELETE_ENTRIES);
+        db.execSQL(TreeDBHelper.SQL_CREATE_ENTRIES);
+
+        for(Feature feature :root.getFeatures()) {
+            ContentValues values = new ContentValues();
+            values.put(TreeDBContract.TreeEntry.COLUMN_NAME_TRAE_ART, feature.getProperties().getTraeArt());
+            values.put(TreeDBContract.TreeEntry.COLUMN_NAME_DANSK_NAVN, feature.getProperties().getDanskNavn());
+            values.put(TreeDBContract.TreeEntry.COLUMN_NAME_COORDINATE_LAT, feature.getGeometry().getCoordinates().get(1));
+            values.put(TreeDBContract.TreeEntry.COLUMN_NAME_COORDINATE_LON, feature.getGeometry().getCoordinates().get(0));
+            long newRowId = db.insert(TreeDBContract.TreeEntry.TABLE_NAME, null, values);
+        }
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        db.close();
+    }
+
+    public static List<Tree> getTreeList(Context context) {
+        TreeDBHelper dbHelper = new TreeDBHelper(context);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        String[] projection = new String[] {TreeDBContract.TreeEntry.COLUMN_NAME_TRAE_ART,
+            TreeDBContract.TreeEntry.COLUMN_NAME_DANSK_NAVN,
+            TreeDBContract.TreeEntry.COLUMN_NAME_COORDINATE_LAT,
+            TreeDBContract.TreeEntry.COLUMN_NAME_COORDINATE_LON};
+        Cursor cursor = db.query(TreeDBContract.TreeEntry.TABLE_NAME, projection, null, null, null, null, null);
+        List<Tree> trees = new ArrayList<>(cursor.getCount());
+        while(cursor.moveToNext()) {
+            Tree tree = new Tree(cursor.getString(cursor.getColumnIndex(TreeDBContract.TreeEntry.COLUMN_NAME_TRAE_ART)),
+                    cursor.getString(cursor.getColumnIndex(TreeDBContract.TreeEntry.COLUMN_NAME_DANSK_NAVN)),
+                    cursor.getDouble(cursor.getColumnIndex(TreeDBContract.TreeEntry.COLUMN_NAME_COORDINATE_LAT)),
+                    cursor.getDouble(cursor.getColumnIndex(TreeDBContract.TreeEntry.COLUMN_NAME_COORDINATE_LON)));
+            trees.add(tree);
+        }
+        cursor.close();
+        db.close();
+        return trees;
     }
 
     @Nullable

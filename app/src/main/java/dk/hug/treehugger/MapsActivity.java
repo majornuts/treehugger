@@ -43,11 +43,14 @@ import dk.hug.treehugger.model.Feature;
 import dk.hug.treehugger.model.Pos;
 import dk.hug.treehugger.model.Root;
 
-public class MapsActivity extends AppCompatActivity implements MapLoaderCallback {
+public class MapsActivity extends AppCompatActivity implements MapLoaderCallback, TreeDownloadCallback {
 
     private static final String TAG = "MapsActivity";
+    private static final String PROGRESS_STATE = "dk.hug.treehugger.IN_PROGRESS";
     private GoogleMap mMap;
     private RelativeLayout mRootView;
+    private ProgressDialog mProgressDialog;
+    private boolean mInProgress;
 
     private GoogleApiClient client;
     private MapTasks mapTasks;
@@ -59,6 +62,9 @@ public class MapsActivity extends AppCompatActivity implements MapLoaderCallback
         setContentView(R.layout.fragment_maps);
 
         mRootView = (RelativeLayout) findViewById(R.id.rootView);
+
+        mProgressDialog = new ProgressDialog(MapsActivity.this);
+        mProgressDialog.setMessage(getString(R.string.downloading_trees));
 
         MobileAds.initialize(getApplicationContext(), this.getResources().getString(R.string.unit_id));
 
@@ -79,7 +85,7 @@ public class MapsActivity extends AppCompatActivity implements MapLoaderCallback
                 }
                 return false;
             }
-        });
+        }, MapsActivity.this);
 
         if(getLastCustomNonConfigurationInstance()==null) {
             mapTasks = new MapTasks(treeDownload, mapLoader);
@@ -87,9 +93,9 @@ public class MapsActivity extends AppCompatActivity implements MapLoaderCallback
             if (DBhandler.getTreeState(this) != 1) {
                 if(checkConnectivity()) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setMessage("do you want to download trees?")
-                            .setNegativeButton("no", null)
-                            .setPositiveButton("yes", new DialogInterface.OnClickListener() {
+                    builder.setMessage(R.string.download_question)
+                            .setNegativeButton(android.R.string.no, null)
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     treeDownload.execute();
@@ -103,10 +109,15 @@ public class MapsActivity extends AppCompatActivity implements MapLoaderCallback
             }
         } else {
             mapTasks = (MapTasks) getLastCustomNonConfigurationInstance();
-            if(mapTasks.getMapLoader().getStatus()== AsyncTask.Status.FINISHED) {
-                mapTasks.setMapLoader(new MapLoader(MapsActivity.this, MapsActivity.this));
-                mapTasks.getMapLoader().execute();
-            }
+            if(mapTasks.getTreeDownload().getStatus()== AsyncTask.Status.RUNNING)
+                mapTasks.getTreeDownload().setCallback(MapsActivity.this);
+
+            if(mapTasks.getMapLoader().getStatus()== AsyncTask.Status.RUNNING||
+                    mapTasks.getMapLoader().getStatus()== AsyncTask.Status.PENDING)
+                mapTasks.getMapLoader().cancel(true);
+
+            mapTasks.setMapLoader(new MapLoader(MapsActivity.this, MapsActivity.this));
+            mapTasks.getMapLoader().execute();
         }
     }
 
@@ -192,6 +203,28 @@ public class MapsActivity extends AppCompatActivity implements MapLoaderCallback
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(PROGRESS_STATE, mInProgress);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        mInProgress = savedInstanceState.getBoolean(PROGRESS_STATE);
+        if(mInProgress)
+            mProgressDialog.show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if(mProgressDialog.isShowing())
+            mProgressDialog.dismiss();
+        mProgressDialog = null;
+        super.onDestroy();
+    }
+
+    @Override
     public MapTasks onRetainCustomNonConfigurationInstance() {
         return mapTasks;
     }
@@ -214,18 +247,20 @@ public class MapsActivity extends AppCompatActivity implements MapLoaderCallback
                 break;
             case R.id.updateTrees:
                 if(checkConnectivity()) {
-                    if(mapTasks.getTreeDownload().getStatus()== AsyncTask.Status.FINISHED) {
-                        final MapLoader mapLoader = new MapLoader(MapsActivity.this, MapsActivity.this);
+                    if(mapTasks.getTreeDownload().getStatus()!=AsyncTask.Status.RUNNING &&
+                            mapTasks.getMapLoader().getStatus()!= AsyncTask.Status.RUNNING) {
                         final TreeDownload treeDownload = new TreeDownload(MapsActivity.this, new Handler.Callback() {
                             @Override
                             public boolean handleMessage(Message msg) {
                                 if (msg.getData().getBoolean("isDone")) {
                                     mMap.clear();
+                                    MapLoader mapLoader = new MapLoader(MapsActivity.this, MapsActivity.this);
+                                    mapTasks.setMapLoader(mapLoader);
                                     mapLoader.execute();
                                 }
                                 return false;
                             }
-                        });
+                        }, MapsActivity.this);
                         mapTasks.setTreeDownload(treeDownload);
                         mapTasks.getTreeDownload().execute();
                     }
@@ -246,6 +281,20 @@ public class MapsActivity extends AppCompatActivity implements MapLoaderCallback
                 mMap.addMarker(tree);
             }
         });
+    }
+
+    @Override
+    public void updateDownloadProgress(int progress) {
+        mInProgress = true;
+        if(mProgressDialog!=null&&!mProgressDialog.isShowing())
+            mProgressDialog.show();
+    }
+
+    @Override
+    public void updateDownloadComplete(boolean failed) {
+        mInProgress = false;
+        if(mProgressDialog!=null&&mProgressDialog.isShowing())
+            mProgressDialog.dismiss();
     }
 }
 
