@@ -8,5 +8,7 @@
     <string name="download_question">Do you want to download trees?</string>
     <string name="update_trees">Update trees</string>
     <string name="downloading_trees">Downloading trees</string>
+    <string name="downloading_trees_progress">Downloading trees %d kB/s</string>
+    <string name="saving_trees">Saving trees</string>
 
 </resources>

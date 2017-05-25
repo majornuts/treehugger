@@ -284,10 +284,14 @@ public class MapsActivity extends AppCompatActivity implements MapLoaderCallback
     }
 
     @Override
-    public void updateDownloadProgress(int progress) {
+    public void updateDownloadProgress(String progressMessage) {
         mInProgress = true;
-        if(mProgressDialog!=null&&!mProgressDialog.isShowing())
-            mProgressDialog.show();
+        if(mProgressDialog!=null) {
+            mProgressDialog.setMessage(progressMessage);
+            if(!mProgressDialog.isShowing()) {
+                mProgressDialog.show();
+            }
+        }
     }
 
     @Override
