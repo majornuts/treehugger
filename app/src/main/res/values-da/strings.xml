@@ -9,4 +9,6 @@
     <string name="download_question">Vil du hente træerne?</string>
     <string name="update_trees">Opdater træer</string>
     <string name="downloading_trees">Henter træer</string>
+    <string name="downloading_trees_progress">Henter træer %d kB/s</string>
+    <string name="saving_trees">Gemmer træer</string>
 </resources>

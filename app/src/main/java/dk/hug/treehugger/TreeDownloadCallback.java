@@ -1,6 +1,6 @@
 package dk.hug.treehugger;
 
 public interface TreeDownloadCallback {
-    void updateDownloadProgress(int progress);
+    void updateDownloadProgress(String progressMessage);
     void updateDownloadComplete(boolean failed);
 }
