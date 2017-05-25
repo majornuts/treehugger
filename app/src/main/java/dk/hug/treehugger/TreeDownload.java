@@ -98,19 +98,15 @@ public class TreeDownload extends AsyncTask<Void, String, Void> {
 
             //is = new URL(url).openStream();
 
-            String responseBody = response.body().string();
+            ObjectMapper mapper = new ObjectMapper();
+            root = mapper.readValue(response.body().byteStream(), Root.class);
+
             long downloadTime = System.currentTimeMillis();
             Log.e(TAG, "doInBackground:download time:" + (downloadTime - time));
             publishProgress(context.getString(R.string.saving_trees));
 
-            ObjectMapper mapper = new ObjectMapper();
-            root = mapper.readValue(responseBody, Root.class);
-
-            long parseTime = System.currentTimeMillis();
-            Log.e(TAG, "doInBackground:parse time:" + (parseTime - downloadTime));
-
             DBhandler.storeTreeList(context, root);
-            Log.e(TAG, "doInBackground:save time:" + (System.currentTimeMillis() - parseTime));
+            Log.e(TAG, "doInBackground:save time:" + (System.currentTimeMillis() - downloadTime));
             isDone = true;
         } catch (JsonGenerationException e) {
             e.printStackTrace();
