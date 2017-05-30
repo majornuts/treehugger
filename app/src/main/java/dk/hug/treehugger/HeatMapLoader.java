@@ -1,5 +1,6 @@
 package dk.hug.treehugger;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
@@ -14,6 +15,7 @@ import dk.hug.treehugger.core.Tree;
 import dk.hug.treehugger.model.Feature;
 
 class HeatMapLoader extends AsyncTask<Void, Void, Void> {
+    private final ProgressDialog progressDialog;
     private HeatmapTileProvider mProvider;
     private Context context;
     private HeatMapLoaderCallback callback;
@@ -21,18 +23,18 @@ class HeatMapLoader extends AsyncTask<Void, Void, Void> {
     public HeatMapLoader(Context context, HeatMapLoaderCallback callback) {
         this.context = context;
         this.callback = callback;
+
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setMessage("planting trees");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
     }
 
     @Override
     protected Void doInBackground(Void... params) {
 
         ArrayList<LatLng> list = new ArrayList<>();
-//        for (Feature feature : DBhandler.getTrees(context).getFeatures()) {
-//            double lat = feature.getGeometry().getCoordinates().get(1);
-//            double lng = feature.getGeometry().getCoordinates().get(0);
-//            LatLng geo = new LatLng(lat, lng);
-//            list.add(geo);
-//        }
+
         for (Tree tree : DBhandler.getTreeList(context)) {
             double lat = tree.getLat();
             double lng = tree.getLon();
@@ -40,11 +42,19 @@ class HeatMapLoader extends AsyncTask<Void, Void, Void> {
             list.add(geo);
         }
 
-        mProvider = new HeatmapTileProvider.Builder()
-                .data(list)
-                .build();
+        if (!list.isEmpty()) {
+            mProvider = new HeatmapTileProvider.Builder()
+                    .data(list)
+                    .build();
+            callback.updateHeatMap(new TileOverlayOptions().tileProvider(mProvider));
+        }
 
-        callback.updateHeatMap(new TileOverlayOptions().tileProvider(mProvider));
+
         return null;
+    }
+
+    @Override
+    protected void onPostExecute(Void aVoid) {
+        progressDialog.dismiss();
     }
 }

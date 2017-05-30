@@ -31,15 +31,21 @@ public class TreeDownload extends AsyncTask<Void, Integer, Void> {
     private static final String TAG = "TreeDownload";
     private final Context context;
     private final Handler.Callback sa;
-    private TreeDownloadCallback callback;
+    private final ProgressDialog progressDialog;
 
-    private long time;
     private boolean isDone = false;
 
-    public TreeDownload(Context context, Handler.Callback startActivity, TreeDownloadCallback callback) {
+
+    public TreeDownload(Context context,Handler.Callback callback) {
         this.context = context;
-        this.sa = startActivity;
-        this.callback = callback;
+        this.sa = callback;
+
+
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setMessage("Downloading trees");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
     }
 
     @Override
@@ -71,38 +77,18 @@ public class TreeDownload extends AsyncTask<Void, Integer, Void> {
         return null;
     }
 
-    @Override
-    protected void onProgressUpdate(Integer... values) {
-        super.onProgressUpdate(values);
-        callback.updateDownloadProgress(values[0]);
-    }
-
-    @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
-        time = System.currentTimeMillis();
-    }
 
     @Override
     protected void onPostExecute(Void aVoid) {
         DBhandler.storeTreeState(context, 1);
-        Log.e(TAG, "onPostExecute:download time:" + (System.currentTimeMillis() - time));
-
-        callback.updateDownloadComplete(isDone);
 
         Bundle b = new Bundle();
         b.putBoolean("isDone", isDone);
         Message m = new Message();
         m.setData(b);
         sa.handleMessage(m);
-    }
 
-    public TreeDownloadCallback getCallback() {
-        return callback;
-    }
-
-    public void setCallback(TreeDownloadCallback callback) {
-        this.callback = callback;
+        progressDialog.dismiss();
     }
 
 }

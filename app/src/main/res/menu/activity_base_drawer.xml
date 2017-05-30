@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/map"
+            android:icon="@drawable/ic_local_florist_black_24dp"
+            android:title="kort" />
+        <item
+            android:id="@+id/heatmap"
+            android:icon="@drawable/ic_local_florist_black_24dp"
+            android:title="Heat map" />
+        <item
+            android:id="@+id/hugmap"
+            android:icon="@drawable/ic_local_florist_black_24dp"
+            android:title="kramme kort" />
+        <item
+            android:id="@+id/about"
+            android:icon="@drawable/ic_local_florist_black_24dp"
+            android:title="About" />
+        <item
+            android:id="@+id/downlaod"
+            android:icon="@drawable/ic_local_florist_black_24dp"
+            android:title="Download trees" />
+    </group>
+
+    <!--<item android:title="Communicate">-->
+        <!--<menu>-->
+            <!--<item-->
+                <!--android:id="@+id/nav_share"-->
+                <!--android:icon="@drawable/ic_menu_share"-->
+                <!--android:title="Share" />-->
+            <!--<item-->
+                <!--android:id="@+id/nav_send"-->
+                <!--android:icon="@drawable/ic_menu_send"-->
+                <!--android:title="Send" />-->
+        <!--</menu>-->
+    <!--</item>-->
+
+</menu>

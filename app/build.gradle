@@ -6,11 +6,10 @@ android {
 
     defaultConfig {
         applicationId "dk.hug.treehugger"
-        minSdkVersion 16
+        minSdkVersion 23
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
-        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -22,19 +21,15 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
-
-
     compile 'com.android.support:appcompat-v7:25.0.0'
     compile 'com.fasterxml.jackson.core:jackson-core:2.7.2'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.0.1'
     compile 'com.android.support:design:25.0.0'
-    compile 'com.jakewharton:butterknife:7.0.1'
     compile 'com.google.android.gms:play-services:8.4.0'
-    compile 'com.android.support:multidex:1.0.1'
-    compile 'io.nlopez.clusterer:library:1.0.6'
     compile 'com.google.maps.android:android-maps-utils:0.4'
     compile 'com.androidmapsextensions:android-maps-extensions:2.2.1'
-//    compile 'com.airbnb.android:lottie:1.5.3'
 
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.android.support:support-v4:25.3.1'
+    testCompile 'junit:junit:4.12'
 }

@@ -1,18 +1,19 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:ads="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/rootView"
-    >
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
+    tools:context="dk.hug.treehugger.MyMapFragment">
+
 
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/map"
-        android:name="com.androidmapsextensions.SupportMapFragment"
+        android:name="com.google.android.gms.maps.MapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".MapsActivity" />
+        tools:context="dk.hug.treehugger.old.HeatMapsActivity" />
+
 
     <com.google.android.gms.ads.AdView
         android:id="@+id/adView"
@@ -21,9 +22,6 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         ads:adSize="BANNER"
-        ads:adUnitId="@string/banner_ad_unit_id"/>
-
+        ads:adUnitId="@string/banner_ad_unit_id" />
 
 </RelativeLayout>
-
-
