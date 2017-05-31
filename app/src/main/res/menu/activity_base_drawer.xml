@@ -5,23 +5,23 @@
         <item
             android:id="@+id/map"
             android:icon="@drawable/ic_local_florist_black_24dp"
-            android:title="kort" />
+            android:title="@string/title_activity_maps" />
         <item
             android:id="@+id/heatmap"
-            android:icon="@drawable/ic_local_florist_black_24dp"
-            android:title="Heat map" />
-        <item
+            android:icon="@drawable/ic_layers_black_24dp"
+            android:title="@string/title_activity_heat_maps" />
+        <!--item
             android:id="@+id/hugmap"
             android:icon="@drawable/ic_local_florist_black_24dp"
-            android:title="kramme kort" />
+            android:title="kramme kort" /-->
         <item
             android:id="@+id/about"
-            android:icon="@drawable/ic_local_florist_black_24dp"
-            android:title="About" />
+            android:icon="@drawable/ic_info_black_24dp"
+            android:title="@string/title_activity_about" />
         <item
             android:id="@+id/downlaod"
-            android:icon="@drawable/ic_local_florist_black_24dp"
-            android:title="Download trees" />
+            android:icon="@drawable/ic_file_download_black_24dp"
+            android:title="@string/update_trees" />
     </group>
 
     <!--<item android:title="Communicate">-->

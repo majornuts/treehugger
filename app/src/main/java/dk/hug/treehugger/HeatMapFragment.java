@@ -58,7 +58,7 @@ public class HeatMapFragment extends Fragment implements OnMapReadyCallback, Hea
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_heat_map, container, false);
 
-        getActivity().setTitle("heat map");
+        getActivity().setTitle(getString(R.string.title_activity_heat_maps));
         MobileAds.initialize(this.getActivity(), this.getResources().getString(R.string.unit_id));
 
         AdView mAdView = (AdView) view.findViewById(R.id.adView);

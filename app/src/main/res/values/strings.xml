@@ -3,11 +3,13 @@
     <string name="title_activity_maps">Map</string>
 
     <string name="title_activity_heat_maps">Heat map</string>
+    <string name="title_activity_about">About app</string>
 
     <string name="no_internet">No internet connection</string>
     <string name="download_question">Do you want to download trees?</string>
     <string name="update_trees">Update trees</string>
     <string name="downloading_trees">Downloading trees</string>
+    <string name="planting_trees">Planting trees</string>
     <string name="title_activity_base">BaseActivity</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -18,5 +20,7 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
+    <string name="about_description">This app is uses data from Copenhagen Municipality.</string>
+    <string name="tree_hug">go hug a tree</string>
 
 </resources>
