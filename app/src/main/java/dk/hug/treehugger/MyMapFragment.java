@@ -14,7 +14,6 @@ import android.os.Message;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -119,6 +118,7 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback, Googl
             @Override
             public void onMapLoaded() {
                 mClusterManager = new ClusterManager<Pos>(getActivity(), googleMap);
+                mClusterManager.setRenderer(new PosClusterRenderer(getActivity(), googleMap, mClusterManager));
                 mMap = googleMap;
                 mapLoader = new MapLoader(getActivity(), mClusterManager, googleMap.getProjection());
                 if (DBhandler.getTreeState(getActivity()) != 1) {
@@ -164,18 +164,11 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback, Googl
 
     private MapFragment getMapFragment() {
         FragmentManager fm = null;
-
-        Log.d(TAG, "sdk: " + Build.VERSION.SDK_INT);
-        Log.d(TAG, "release: " + Build.VERSION.RELEASE);
-
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            Log.d(TAG, "using getFragmentManager");
             fm = getFragmentManager();
         } else {
-            Log.d(TAG, "using getChildFragmentManager");
             fm = getChildFragmentManager();
         }
-
         return (MapFragment) fm.findFragmentById(R.id.map);
     }
 

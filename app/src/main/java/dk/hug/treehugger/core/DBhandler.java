@@ -5,15 +5,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.support.annotation.Nullable;
-import android.util.Log;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.maps.Projection;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 

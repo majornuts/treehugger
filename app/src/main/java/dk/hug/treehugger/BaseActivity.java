@@ -22,7 +22,6 @@ import android.view.MenuItem;
 public class BaseActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private View view;
     private View parentLayout;
 
     @Override
