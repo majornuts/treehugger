@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.LatLngBounds;
 
@@ -25,6 +26,7 @@ public class DBhandler {
     private final static String trees = "trees";
     private final static String treeState = "treeState";
     private static final String PREF_NAME = "PREF_NAME";
+    private static SQLiteDatabase dbstatic;
 
 
     public static void storeTreeState(Context context, int RootState) {
@@ -62,6 +64,7 @@ public class DBhandler {
     }
 
     public static List<Tree> getTreeList(Context context) {
+
         TreeDBHelper dbHelper = new TreeDBHelper(context);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String[] projection = new String[]{TreeDBContract.TreeEntry.COLUMN_NAME_TRAE_ART,
@@ -79,12 +82,21 @@ public class DBhandler {
         }
         cursor.close();
         db.close();
+
         return trees;
     }
 
+    public static void closeDB() {
+        dbstatic.close();
+        dbstatic = null;
+    }
+
     public static List<Tree> getRegionTreeList(Context context, Projection projectionRigion) {
-        TreeDBHelper dbHelper = new TreeDBHelper(context);
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        if (dbstatic == null) {
+            TreeDBHelper dbHelper = new TreeDBHelper(context);
+            dbstatic = dbHelper.getReadableDatabase();
+        }
 
         String[] projection = new String[]{TreeDBContract.TreeEntry.COLUMN_NAME_TRAE_ART,
                 TreeDBContract.TreeEntry.COLUMN_NAME_DANSK_NAVN,
@@ -99,9 +111,9 @@ public class DBhandler {
                 " And " + COLUMN_NAME_COORDINATE_LON +
                 " Between " + bounds.southwest.longitude +
                 " And " + bounds.northeast.longitude +
-                " LIMIT 1000";
+                " LIMIT 2000";
 
-        Cursor cursor = db.query(TreeDBContract.TreeEntry.TABLE_NAME, projection, selection, null, null, null, null);
+        Cursor cursor = dbstatic.query(TreeDBContract.TreeEntry.TABLE_NAME, projection, selection, null, null, null, null);
         List<Tree> trees = new ArrayList<>(cursor.getCount());
         while (cursor.moveToNext()) {
             Tree tree = new Tree(cursor.getString(cursor.getColumnIndex(TreeDBContract.TreeEntry.COLUMN_NAME_TRAE_ART)),
@@ -111,7 +123,6 @@ public class DBhandler {
             trees.add(tree);
         }
         cursor.close();
-        db.close();
 
         return trees;
     }

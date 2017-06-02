@@ -28,6 +28,8 @@ class HeatMapLoader extends AsyncTask<Void, Void, Void> {
         progressDialog.setMessage(context.getString(R.string.planting_trees));
         progressDialog.setCancelable(false);
         progressDialog.show();
+
+
     }
 
     @Override

@@ -172,6 +172,11 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback, Googl
         return (MapFragment) fm.findFragmentById(R.id.map);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        DBhandler.closeDB();
+    }
 
     @Override
     public void onCameraMove() {
