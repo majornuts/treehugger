@@ -79,7 +79,7 @@ public class BaseActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.base, menu);
+//        getMenuInflater().inflate(R.menu.base, menu);
         return true;
     }
 
@@ -109,7 +109,7 @@ public class BaseActivity extends AppCompatActivity
             FragmentTransaction transaction = manager.beginTransaction();
             transaction.replace(R.id.content_frame, HeatMapFragment.newInstance());
             transaction.commit();
-        } else if (id == R.id.hugmap) {
+//        } else if (id == R.id.hugmap) {
 
         } else if (id == R.id.about) {
             FragmentManager manager = getFragmentManager();

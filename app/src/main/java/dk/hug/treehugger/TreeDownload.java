@@ -42,7 +42,7 @@ public class TreeDownload extends AsyncTask<Void, Integer, Void> {
 
 
         progressDialog = new ProgressDialog(context);
-        progressDialog.setMessage("Downloading trees");
+        progressDialog.setMessage(context.getString(R.string.downloading_trees));
         progressDialog.setCancelable(false);
         progressDialog.show();
 

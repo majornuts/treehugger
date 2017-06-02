@@ -25,7 +25,7 @@ class HeatMapLoader extends AsyncTask<Void, Void, Void> {
         this.callback = callback;
 
         progressDialog = new ProgressDialog(context);
-        progressDialog.setMessage("planting trees");
+        progressDialog.setMessage(context.getString(R.string.planting_trees));
         progressDialog.setCancelable(false);
         progressDialog.show();
     }

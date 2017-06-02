@@ -24,9 +24,7 @@ public class AboutFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-        }
-        getActivity().setTitle("Om app'en");
+        getActivity().setTitle(getString(R.string.title_activity_about));
     }
 
     @Override

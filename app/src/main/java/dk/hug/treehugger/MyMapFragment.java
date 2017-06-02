@@ -74,7 +74,7 @@ public class MyMapFragment extends Fragment implements MapLoaderCallback {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        getActivity().setTitle("Map");
+        getActivity().setTitle(getString(R.string.title_activity_maps));
         view = inflater.inflate(R.layout.fragment_map, container, false);
 
         MobileAds.initialize(this.getActivity(), this.getResources().getString(R.string.unit_id));
