@@ -41,17 +41,7 @@ public class HeatMapFragment extends Fragment implements OnMapReadyCallback, Hea
 
     public static HeatMapFragment newInstance() {
         HeatMapFragment fragment = new HeatMapFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
         return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-        }
-
     }
 
     @Override
@@ -60,18 +50,14 @@ public class HeatMapFragment extends Fragment implements OnMapReadyCallback, Hea
 
         getActivity().setTitle(getString(R.string.title_activity_heat_maps));
         MobileAds.initialize(this.getActivity(), this.getResources().getString(R.string.unit_id));
-
         AdView mAdView = (AdView) view.findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
         mAdView.loadAd(adRequest);
-
-        mapLoader = new HeatMapLoader(getContext(), this);
-
+        mapLoader = new HeatMapLoader(getActivity(), this);
         getMapFragment().getMapAsync(this);
-
         if (DBhandler.getTreeState(getActivity()) != 1) {
             if (checkConnectivity()) {
-                new TreeDownload(getContext(), new Handler.Callback() {
+                new TreeDownload(getActivity(), new Handler.Callback() {
                     @Override
                     public boolean handleMessage(Message msg) {
                         return false;
@@ -86,26 +72,17 @@ public class HeatMapFragment extends Fragment implements OnMapReadyCallback, Hea
         return view;
     }
 
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-    }
-
     @RequiresApi(api = Build.VERSION_CODES.M)
     private boolean hasPermission(String perm) {
         return (PackageManager.PERMISSION_GRANTED == getActivity().checkSelfPermission(perm));
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     private boolean canAccessLocation() {
-        return (hasPermission(Manifest.permission.ACCESS_FINE_LOCATION));
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            return (hasPermission(Manifest.permission.ACCESS_FINE_LOCATION));
+        } else {
+            return true;
+        }
     }
 
     private boolean checkConnectivity() {
@@ -147,7 +124,6 @@ public class HeatMapFragment extends Fragment implements OnMapReadyCallback, Hea
             mapLoader = new HeatMapLoader(getActivity(), this);
             mapLoader.execute();
         }
-
     }
 
     @Override
@@ -160,27 +136,14 @@ public class HeatMapFragment extends Fragment implements OnMapReadyCallback, Hea
                 mMap.addTileOverlay(overlayOptions);
             }
         });
-
-
     }
-
-    private static final String TAG = "HeatMapFragment";
-
     private MapFragment getMapFragment() {
         FragmentManager fm = null;
-
-        Log.d(TAG, "sdk: " + Build.VERSION.SDK_INT);
-        Log.d(TAG, "release: " + Build.VERSION.RELEASE);
-
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            Log.d(TAG, "using getFragmentManager");
             fm = getFragmentManager();
         } else {
-            Log.d(TAG, "using getChildFragmentManager");
             fm = getChildFragmentManager();
         }
-
-        return (MapFragment) fm.findFragmentById(R.id.map);
+        return (MapFragment) fm.findFragmentById(R.id.mapview);
     }
-
 }

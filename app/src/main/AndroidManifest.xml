@@ -13,8 +13,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <!--        android:name="android.support.multidex.MultiDexApplication"
--->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />

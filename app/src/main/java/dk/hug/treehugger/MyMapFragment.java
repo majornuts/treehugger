@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
@@ -33,7 +34,7 @@ import dk.hug.treehugger.core.DBhandler;
 import dk.hug.treehugger.model.Pos;
 
 
-public class MyMapFragment extends Fragment implements  OnMapReadyCallback, GoogleMap.OnCameraMoveListener {
+public class MyMapFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnCameraMoveListener {
     private static final String TAG = "MyMapFragment";
     private View view;
     private MapLoader mapLoader;
@@ -84,9 +85,13 @@ public class MyMapFragment extends Fragment implements  OnMapReadyCallback, Goog
         return (PackageManager.PERMISSION_GRANTED == getActivity().checkSelfPermission(perm));
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
+
     private boolean canAccessLocation() {
-        return (hasPermission(Manifest.permission.ACCESS_FINE_LOCATION));
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            return (hasPermission(Manifest.permission.ACCESS_FINE_LOCATION));
+        } else {
+            return true;
+        }
     }
 
 
@@ -121,6 +126,7 @@ public class MyMapFragment extends Fragment implements  OnMapReadyCallback, Goog
                         new TreeDownload(getActivity(), new Handler.Callback() {
                             @Override
                             public boolean handleMessage(Message msg) {
+                                mapLoader.execute();
                                 return false;
                             }
                         }).execute();
@@ -137,11 +143,9 @@ public class MyMapFragment extends Fragment implements  OnMapReadyCallback, Goog
                                     Manifest.permission.ACCESS_COARSE_LOCATION},
                             2);
                 }
-
                 if (canAccessLocation()) {
                     googleMap.setMyLocationEnabled(true);
                 }
-
             }
         });
 

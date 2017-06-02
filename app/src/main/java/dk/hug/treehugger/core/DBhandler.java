@@ -45,27 +45,6 @@ public class DBhandler {
         return s;
     }
 
-
-    public static void storeTrees(Context context, Root root) {
-        storeTreeState(context, 1);
-        SharedPreferences settings = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor edit = settings.edit();
-        edit.putString(trees, serialize(root)).apply();
-    }
-
-    public static Root getTrees(Context context) {
-        SharedPreferences settings = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        String s = settings.getString(trees, null);
-        ObjectMapper mapper = new ObjectMapper();
-        Root root = null;
-        try {
-            root = mapper.readValue(s, Root.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return root;
-    }
-
     public static void storeTreeList(Context context, Root root) {
         TreeDBHelper dbHelper = new TreeDBHelper(context);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -107,17 +86,6 @@ public class DBhandler {
         cursor.close();
         db.close();
         return trees;
-    }
-
-    @Nullable
-    public static String serialize(Object obj) {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            return mapper.writeValueAsString(obj);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
     public static List<Tree> getRegionTreeList(Context context, Projection projectionRigion) {
