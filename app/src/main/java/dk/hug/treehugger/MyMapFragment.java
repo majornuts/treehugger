@@ -1,7 +1,6 @@
 package dk.hug.treehugger;
 
 import android.Manifest;
-import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
@@ -19,13 +18,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.androidmapsextensions.ClusterGroup;
-import com.androidmapsextensions.ClusterOptions;
-import com.androidmapsextensions.ClusterOptionsProvider;
-import com.androidmapsextensions.ClusteringSettings;
-import com.androidmapsextensions.Marker;
-import com.androidmapsextensions.MarkerOptions;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
@@ -33,24 +25,22 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.maps.android.clustering.ClusterItem;
-
-import java.util.List;
+import com.google.android.gms.maps.model.Marker;
+import com.google.maps.android.clustering.ClusterManager;
 
 import dk.hug.treehugger.core.DBhandler;
-import dk.hug.treehugger.utils.CustomClusterOptionsProvider;
+import dk.hug.treehugger.model.Pos;
 
 
-public class MyMapFragment extends Fragment implements MapLoaderCallback {
+public class MyMapFragment extends Fragment implements  OnMapReadyCallback, GoogleMap.OnCameraMoveListener {
     private static final String TAG = "MyMapFragment";
-    private com.androidmapsextensions.GoogleMap mMap;
     private View view;
     private MapLoader mapLoader;
 
-    private static final int DYNAMIC_GROUP = ClusterGroup.FIRST_USER;
+
+    private ClusterManager<Pos> mClusterManager;
+    private GoogleMap mMap;
 
     //todo https://androidresearch.wordpress.com/2013/05/10/dealing-with-asynctask-and-screen-orientation/   locked som portret mode in til nu.
     public MyMapFragment() {
@@ -82,75 +72,12 @@ public class MyMapFragment extends Fragment implements MapLoaderCallback {
         AdView mAdView = (AdView) view.findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
         mAdView.loadAd(adRequest);
-        initmap();
+        getMapFragment().getMapAsync(this);
 
-        mapLoader = new MapLoader(getActivity(), this);
-
-        if (DBhandler.getTreeState(getActivity()) != 1) {
-            if (checkConnectivity()) {
-//                new TreeDownload(getContext(), new Handler.Callback() {
-//                    @Override
-//                    public boolean handleMessage(Message msg) {
-//                        if (msg.getData().getBoolean("isDone")) {
-//
-//                        }
-//                        return false;
-//                    }
-//                }, this);
-
-
-                new TreeDownload(getActivity(), new Handler.Callback() {
-                    @Override
-                    public boolean handleMessage(Message msg) {
-                        return false;
-                    }
-                }).execute();
-
-
-            } else {
-                showNoInternet();
-            }
-        } else {
-            mapLoader.execute();
-        }
         return view;
 
     }
 
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    private void initmap() {
-        mMap = ((com.androidmapsextensions.MapFragment) getChildFragmentManager().findFragmentById(R.id.map)).getExtendedMap();
-
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{
-                            Manifest.permission.ACCESS_FINE_LOCATION,
-                            Manifest.permission.ACCESS_COARSE_LOCATION},
-                    2);
-        }
-        if (canAccessLocation()) {
-            mMap.setMyLocationEnabled(true);
-        }
-        mMap.clear();
-        mMap.getUiSettings().setRotateGesturesEnabled(false);
-        mMap.getUiSettings().setTiltGesturesEnabled(false);
-        mMap.getUiSettings().setMyLocationButtonEnabled(true);
-        LatLng dis = new LatLng(55.678814, 12.564026);
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(dis, 14));
-
-        mMap.setClustering(new ClusteringSettings().enabled(true).addMarkersDynamically(true).clusterSize(75).clusterOptionsProvider(new CustomClusterOptionsProvider(getResources())));
-    }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private boolean hasPermission(String perm) {
@@ -162,17 +89,6 @@ public class MyMapFragment extends Fragment implements MapLoaderCallback {
         return (hasPermission(Manifest.permission.ACCESS_FINE_LOCATION));
     }
 
-
-    @Override
-    public void plantTreeOnMap(final MarkerOptions tree) {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-
-                mMap.addMarker(tree);
-            }
-        });
-    }
 
     private void showNoInternet() {
         Snackbar.make(view, R.string.no_internet, Snackbar.LENGTH_LONG).show();
@@ -187,4 +103,82 @@ public class MyMapFragment extends Fragment implements MapLoaderCallback {
                 activeNetwork.isConnectedOrConnecting();
     }
 
+    @Override
+    public void onMapReady(final GoogleMap googleMap) {
+
+        googleMap.setOnCameraMoveListener(this);
+
+        LatLng dis = new LatLng(55.678814, 12.564026);
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(dis, 14));
+        googleMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+            @Override
+            public void onMapLoaded() {
+                mClusterManager = new ClusterManager<Pos>(getActivity(), googleMap);
+                mMap = googleMap;
+                mapLoader = new MapLoader(getActivity(), mClusterManager, googleMap.getProjection());
+                if (DBhandler.getTreeState(getActivity()) != 1) {
+                    if (checkConnectivity()) {
+                        new TreeDownload(getActivity(), new Handler.Callback() {
+                            @Override
+                            public boolean handleMessage(Message msg) {
+                                return false;
+                            }
+                        }).execute();
+                    } else {
+                        showNoInternet();
+                    }
+                } else {
+                    mapLoader.execute();
+                }
+
+                if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(getActivity(), new String[]{
+                                    Manifest.permission.ACCESS_FINE_LOCATION,
+                                    Manifest.permission.ACCESS_COARSE_LOCATION},
+                            2);
+                }
+
+                if (canAccessLocation()) {
+                    googleMap.setMyLocationEnabled(true);
+                }
+
+            }
+        });
+
+        googleMap.getUiSettings().setRotateGesturesEnabled(false);
+        googleMap.getUiSettings().setTiltGesturesEnabled(false);
+        googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+        googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                marker.showInfoWindow();
+                return true;
+            }
+        });
+    }
+
+
+    private MapFragment getMapFragment() {
+        FragmentManager fm = null;
+
+        Log.d(TAG, "sdk: " + Build.VERSION.SDK_INT);
+        Log.d(TAG, "release: " + Build.VERSION.RELEASE);
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            Log.d(TAG, "using getFragmentManager");
+            fm = getFragmentManager();
+        } else {
+            Log.d(TAG, "using getChildFragmentManager");
+            fm = getChildFragmentManager();
+        }
+
+        return (MapFragment) fm.findFragmentById(R.id.map);
+    }
+
+
+    @Override
+    public void onCameraMove() {
+        mapLoader = new MapLoader(getActivity(), mClusterManager, mMap.getProjection());
+        mapLoader.execute();
+    }
 }

@@ -5,13 +5,27 @@
     xmlns:ads="http://schemas.android.com/apk/res-auto"
     tools:context="dk.hug.treehugger.MyMapFragment">
 
+    <!--<fragment xmlns:android="http://schemas.android.com/apk/res/android"-->
+        <!--xmlns:tools="http://schemas.android.com/tools"-->
+        <!--android:id="@+id/map"-->
+        <!--android:name="com.androidmapsextensions.MapFragment"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--tools:context=".old.MapsActivity" />-->
+
+    <!--<com.google.android.gms.maps.MapView-->
+        <!--android:id="@+id/mapView"-->
+        <!--android:apiKey="@string/google_maps_key"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent" />-->
+
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/map"
-        android:name="com.androidmapsextensions.MapFragment"
+        android:name="com.google.android.gms.maps.MapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".old.MapsActivity" />
+         />
 
     <com.google.android.gms.ads.AdView
         android:id="@+id/adView"

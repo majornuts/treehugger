@@ -6,8 +6,12 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.android.gms.maps.Projection;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,6 +19,9 @@ import java.util.List;
 
 import dk.hug.treehugger.model.Feature;
 import dk.hug.treehugger.model.Root;
+
+import static dk.hug.treehugger.core.TreeDBContract.TreeEntry.COLUMN_NAME_COORDINATE_LAT;
+import static dk.hug.treehugger.core.TreeDBContract.TreeEntry.COLUMN_NAME_COORDINATE_LON;
 
 /**
  * Created by  Mads Fisker on 2016 - 09/03/16  21:44.
@@ -40,7 +47,7 @@ public class DBhandler {
 
 
     public static void storeTrees(Context context, Root root) {
-        storeTreeState(context,1);
+        storeTreeState(context, 1);
         SharedPreferences settings = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor edit = settings.edit();
         edit.putString(trees, serialize(root)).apply();
@@ -68,11 +75,11 @@ public class DBhandler {
         db.execSQL(TreeDBHelper.SQL_DELETE_ENTRIES);
         db.execSQL(TreeDBHelper.SQL_CREATE_ENTRIES);
 
-        for(Feature feature :root.getFeatures()) {
+        for (Feature feature : root.getFeatures()) {
             ContentValues values = new ContentValues();
             values.put(TreeDBContract.TreeEntry.COLUMN_NAME_TRAE_ART, feature.getProperties().getTraeArt());
             values.put(TreeDBContract.TreeEntry.COLUMN_NAME_DANSK_NAVN, feature.getProperties().getDanskNavn());
-            values.put(TreeDBContract.TreeEntry.COLUMN_NAME_COORDINATE_LAT, feature.getGeometry().getCoordinates().get(1));
+            values.put(COLUMN_NAME_COORDINATE_LAT, feature.getGeometry().getCoordinates().get(1));
             values.put(TreeDBContract.TreeEntry.COLUMN_NAME_COORDINATE_LON, feature.getGeometry().getCoordinates().get(0));
             long newRowId = db.insert(TreeDBContract.TreeEntry.TABLE_NAME, null, values);
         }
@@ -84,16 +91,16 @@ public class DBhandler {
     public static List<Tree> getTreeList(Context context) {
         TreeDBHelper dbHelper = new TreeDBHelper(context);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        String[] projection = new String[] {TreeDBContract.TreeEntry.COLUMN_NAME_TRAE_ART,
-            TreeDBContract.TreeEntry.COLUMN_NAME_DANSK_NAVN,
-            TreeDBContract.TreeEntry.COLUMN_NAME_COORDINATE_LAT,
-            TreeDBContract.TreeEntry.COLUMN_NAME_COORDINATE_LON};
+        String[] projection = new String[]{TreeDBContract.TreeEntry.COLUMN_NAME_TRAE_ART,
+                TreeDBContract.TreeEntry.COLUMN_NAME_DANSK_NAVN,
+                COLUMN_NAME_COORDINATE_LAT,
+                TreeDBContract.TreeEntry.COLUMN_NAME_COORDINATE_LON};
         Cursor cursor = db.query(TreeDBContract.TreeEntry.TABLE_NAME, projection, null, null, null, null, null);
         List<Tree> trees = new ArrayList<>(cursor.getCount());
-        while(cursor.moveToNext()) {
+        while (cursor.moveToNext()) {
             Tree tree = new Tree(cursor.getString(cursor.getColumnIndex(TreeDBContract.TreeEntry.COLUMN_NAME_TRAE_ART)),
                     cursor.getString(cursor.getColumnIndex(TreeDBContract.TreeEntry.COLUMN_NAME_DANSK_NAVN)),
-                    cursor.getDouble(cursor.getColumnIndex(TreeDBContract.TreeEntry.COLUMN_NAME_COORDINATE_LAT)),
+                    cursor.getDouble(cursor.getColumnIndex(COLUMN_NAME_COORDINATE_LAT)),
                     cursor.getDouble(cursor.getColumnIndex(TreeDBContract.TreeEntry.COLUMN_NAME_COORDINATE_LON)));
             trees.add(tree);
         }
@@ -113,5 +120,38 @@ public class DBhandler {
         return null;
     }
 
+    public static List<Tree> getRegionTreeList(Context context, Projection projectionRigion) {
+        TreeDBHelper dbHelper = new TreeDBHelper(context);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String[] projection = new String[]{TreeDBContract.TreeEntry.COLUMN_NAME_TRAE_ART,
+                TreeDBContract.TreeEntry.COLUMN_NAME_DANSK_NAVN,
+                COLUMN_NAME_COORDINATE_LAT,
+                TreeDBContract.TreeEntry.COLUMN_NAME_COORDINATE_LON};
+
+        LatLngBounds bounds = projectionRigion.getVisibleRegion().latLngBounds;
+
+        String selection = COLUMN_NAME_COORDINATE_LAT +
+                " Between " + bounds.southwest.latitude +
+                " And " + bounds.northeast.latitude +
+                " And " + COLUMN_NAME_COORDINATE_LON +
+                " Between " + bounds.southwest.longitude +
+                " And " + bounds.northeast.longitude +
+                " LIMIT 1000";
+
+        Cursor cursor = db.query(TreeDBContract.TreeEntry.TABLE_NAME, projection, selection, null, null, null, null);
+        List<Tree> trees = new ArrayList<>(cursor.getCount());
+        while (cursor.moveToNext()) {
+            Tree tree = new Tree(cursor.getString(cursor.getColumnIndex(TreeDBContract.TreeEntry.COLUMN_NAME_TRAE_ART)),
+                    cursor.getString(cursor.getColumnIndex(TreeDBContract.TreeEntry.COLUMN_NAME_DANSK_NAVN)),
+                    cursor.getDouble(cursor.getColumnIndex(COLUMN_NAME_COORDINATE_LAT)),
+                    cursor.getDouble(cursor.getColumnIndex(TreeDBContract.TreeEntry.COLUMN_NAME_COORDINATE_LON)));
+            trees.add(tree);
+        }
+        cursor.close();
+        db.close();
+
+        return trees;
+    }
 
 }

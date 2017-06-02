@@ -9,8 +9,18 @@ public class TreeDBContract {
 
         public static final String COLUMN_NAME_DANSK_NAVN = "dansk_navn";
         public static final String COLUMN_NAME_TRAE_ART = "traeart";
+//        public static final String COLUMN_NAME_COORDINATE_LAT = "coordinate_lat";
+//        public static final String COLUMN_NAME_COORDINATE_LON = "coordinate_lon";
+
+
+
         public static final String COLUMN_NAME_COORDINATE_LAT = "coordinate_lat";
         public static final String COLUMN_NAME_COORDINATE_LON = "coordinate_lon";
+
+
+
+
+
 
         // Not used
         public static final String COLUMN_NAME_EJER = "ejer";

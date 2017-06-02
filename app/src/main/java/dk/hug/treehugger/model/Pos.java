@@ -9,12 +9,19 @@ import com.google.maps.android.clustering.ClusterItem;
 public class Pos implements ClusterItem {
 
     private String name;
+    private String latname;
     private LatLng position;
 
-    public Pos(String name, LatLng position) {
-        this.name = name;
+    public Pos(String danishName, String latname, LatLng position) {
+        this.name = danishName;
+        this.latname = latname;
         this.position = position;
     }
+
+    public Pos (double lat,double lng){
+        this.position = new LatLng(lat,lng);
+    }
+
 
     public String getName() {
         return name;
@@ -23,6 +30,16 @@ public class Pos implements ClusterItem {
     @Override
     public LatLng getPosition() {
         return position;
+    }
+
+    @Override
+    public String getTitle() {
+        return name;
+    }
+
+    @Override
+    public String getSnippet() {
+        return latname;
     }
 
 
