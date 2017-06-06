@@ -5,14 +5,10 @@
     xmlns:ads="http://schemas.android.com/apk/res-auto"
     tools:context="dk.hug.treehugger.MyMapFragment">
 
-
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+    <RelativeLayout
         android:id="@+id/mapview"
-        android:name="com.google.android.gms.maps.MapFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        />
+        android:layout_height="match_parent"/>
 
 
     <com.google.android.gms.ads.AdView

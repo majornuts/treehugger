@@ -3,6 +3,7 @@ package dk.hug.treehugger;
 import android.Manifest;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
@@ -52,6 +53,7 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback, Googl
         Bundle args = new Bundle();
 
         fragment.setArguments(args);
+
         return fragment;
     }
 
@@ -67,12 +69,19 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback, Googl
         getActivity().setTitle(getString(R.string.title_activity_maps));
         view = inflater.inflate(R.layout.fragment_map, container, false);
 
+        FragmentManager fm = getChildFragmentManager();
+        MapFragment fr = (MapFragment) fm.findFragmentById(R.id.map);
+        if(fr==null) {
+            fr = MapFragment.newInstance();
+            fm.beginTransaction().replace(R.id.map, fr).commit();
+        }
+
         MobileAds.initialize(this.getActivity(), this.getResources().getString(R.string.unit_id));
 
         AdView mAdView = (AdView) view.findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
         mAdView.loadAd(adRequest);
-        getMapFragment().getMapAsync(this);
+        fr.getMapAsync(this);
 
         return view;
 

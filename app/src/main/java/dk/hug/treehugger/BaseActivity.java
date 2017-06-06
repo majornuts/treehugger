@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.Snackbar;
+import android.view.MenuInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -23,6 +24,7 @@ public class BaseActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private View parentLayout;
+    private int currentNavigationItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,14 +52,9 @@ public class BaseActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        FragmentManager manager = getFragmentManager();
-        FragmentTransaction transaction = manager.beginTransaction();
-        transaction.replace(R.id.content_frame, MyMapFragment.newInstance()); // newInstance() is a static factory method.
-        transaction.commit();
-
-
+        currentNavigationItem = R.id.map;
+        updateNavigationFragment(currentNavigationItem);
     }
-
 
     @Override
     public void onBackPressed() {
@@ -75,10 +72,22 @@ public class BaseActivity extends AppCompatActivity
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if(currentNavigationItem==R.id.map||currentNavigationItem==R.id.heatmap) {
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.base, menu);
+            return true;
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_refresh) {
+            DBhandler.storeTreeState(BaseActivity.this, 0);
+            updateNavigationFragment(currentNavigationItem);
             return true;
         }
 
@@ -88,8 +97,12 @@ public class BaseActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        int id = item.getItemId();
+        currentNavigationItem = item.getItemId();
+        updateNavigationFragment(currentNavigationItem);
+        return true;
+    }
 
+    private void updateNavigationFragment(int id) {
         if (id == R.id.map) {
             FragmentManager manager = getFragmentManager();
             FragmentTransaction transaction = manager.beginTransaction();
@@ -107,40 +120,9 @@ public class BaseActivity extends AppCompatActivity
             FragmentTransaction transaction = manager.beginTransaction();
             transaction.replace(R.id.content_frame, AboutFragment.newInstance());
             transaction.commit();
-
-        } else if (id == R.id.downlaod) {
-            if (checkConnectivity()) {
-                new TreeDownload(this, new Handler.Callback() {
-                    @Override
-                    public boolean handleMessage(Message msg) {
-                        //todo locate active fragment, and refresh it.
-                        FragmentManager manager = getFragmentManager();
-                        FragmentTransaction transaction = manager.beginTransaction();
-                        transaction.replace(R.id.content_frame, MyMapFragment.newInstance());
-                        transaction.commit();
-                        return false;
-                    }
-                }).execute();
-            } else {
-                showNoInternet();
-            }
         }
+        invalidateOptionsMenu();
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
-        return true;
     }
-
-    private boolean checkConnectivity() {
-        ConnectivityManager cm =
-                (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        return activeNetwork != null &&
-                activeNetwork.isConnectedOrConnecting();
-    }
-
-    private void showNoInternet() {
-        Snackbar.make(parentLayout, R.string.no_internet, Snackbar.LENGTH_LONG).show();
-    }
-
 }
