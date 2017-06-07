@@ -1,4 +1,4 @@
-package dk.hug.treehugger.core;
+package dk.siit.treehugger.core;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

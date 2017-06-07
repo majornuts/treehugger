@@ -1,4 +1,4 @@
-package dk.hug.treehugger;
+package dk.siit.treehugger;
 
 
 import android.os.Bundle;

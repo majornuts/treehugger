@@ -1,4 +1,4 @@
-package dk.hug.treehugger;
+package dk.siit.treehugger;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -10,9 +10,9 @@ import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
 import java.util.ArrayList;
 
-import dk.hug.treehugger.core.DBhandler;
-import dk.hug.treehugger.core.Tree;
-import dk.hug.treehugger.model.Feature;
+import dk.siit.treehugger.core.DBhandler;
+import dk.siit.treehugger.core.Tree;
+import dk.siit.treehugger.model.Feature;
 
 class HeatMapLoader extends AsyncTask<Void, Void, Void> {
     private final ProgressDialog progressDialog;

@@ -1,4 +1,4 @@
-package dk.hug.treehugger.model;
+package dk.siit.treehugger.model;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;

@@ -1,4 +1,4 @@
-package dk.hug.treehugger.model;
+package dk.siit.treehugger.model;
 
 /**
  * Created by  Mads Fisker  on 2016 - 09/03/16  20:57.

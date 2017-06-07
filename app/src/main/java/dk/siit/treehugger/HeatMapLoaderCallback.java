@@ -1,4 +1,4 @@
-package dk.hug.treehugger;
+package dk.siit.treehugger;
 
 import com.google.android.gms.maps.model.TileOverlayOptions;
 

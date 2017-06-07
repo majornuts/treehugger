@@ -1,4 +1,4 @@
-package dk.hug.treehugger;
+package dk.siit.treehugger;
 
 import android.Manifest;
 import android.app.Fragment;
@@ -30,8 +30,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.maps.android.clustering.ClusterManager;
 
-import dk.hug.treehugger.core.DBhandler;
-import dk.hug.treehugger.model.Pos;
+import dk.siit.treehugger.core.DBhandler;
+import dk.siit.treehugger.model.Pos;
 
 
 public class MyMapFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnCameraMoveListener {

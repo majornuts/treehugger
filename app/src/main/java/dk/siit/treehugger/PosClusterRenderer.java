@@ -1,4 +1,4 @@
-package dk.hug.treehugger;
+package dk.siit.treehugger;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -11,7 +11,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 
-import dk.hug.treehugger.model.Pos;
+import dk.siit.treehugger.model.Pos;
 
 /**
  * Created by mfi on 02/06/2017.

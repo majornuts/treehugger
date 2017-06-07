@@ -1,4 +1,4 @@
-package dk.hug.treehugger;
+package dk.siit.treehugger;
 
 import android.Manifest;
 import android.app.Fragment;
@@ -28,7 +28,7 @@ import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 
-import dk.hug.treehugger.core.DBhandler;
+import dk.siit.treehugger.core.DBhandler;
 
 
 public class HeatMapFragment extends Fragment implements OnMapReadyCallback, HeatMapLoaderCallback {

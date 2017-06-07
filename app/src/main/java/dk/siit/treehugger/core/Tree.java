@@ -1,4 +1,4 @@
-package dk.hug.treehugger.core;
+package dk.siit.treehugger.core;
 
 public class Tree {
     private String species;
