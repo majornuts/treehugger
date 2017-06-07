@@ -1,4 +1,4 @@
-package dk.siit.treehugger.core;
+package dk.hug.treehugger.core;
 
 import android.provider.BaseColumns;
 

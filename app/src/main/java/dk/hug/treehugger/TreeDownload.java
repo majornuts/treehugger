@@ -1,4 +1,4 @@
-package dk.siit.treehugger;
+package dk.hug.treehugger;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-import dk.siit.treehugger.core.DBhandler;
-import dk.siit.treehugger.model.Root;
+import dk.hug.treehugger.core.DBhandler;
+import dk.hug.treehugger.model.Root;
 
 
 /**

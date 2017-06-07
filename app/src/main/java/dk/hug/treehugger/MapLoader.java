@@ -1,4 +1,4 @@
-package dk.siit.treehugger;
+package dk.hug.treehugger;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -11,9 +11,9 @@ import com.google.maps.android.clustering.ClusterManager;
 import java.util.ArrayList;
 import java.util.List;
 
-import dk.siit.treehugger.core.DBhandler;
-import dk.siit.treehugger.core.Tree;
-import dk.siit.treehugger.model.Pos;
+import dk.hug.treehugger.core.DBhandler;
+import dk.hug.treehugger.core.Tree;
+import dk.hug.treehugger.model.Pos;
 
 public class MapLoader extends AsyncTask<Void, Void, Void> {
     private static final String TAG = "MapLoader";

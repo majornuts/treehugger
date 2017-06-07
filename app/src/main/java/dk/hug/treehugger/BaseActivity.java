@@ -1,4 +1,4 @@
-package dk.siit.treehugger;
+package dk.hug.treehugger;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -20,7 +20,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import dk.siit.treehugger.core.DBhandler;
+import dk.hug.treehugger.core.DBhandler;
 
 public class BaseActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {

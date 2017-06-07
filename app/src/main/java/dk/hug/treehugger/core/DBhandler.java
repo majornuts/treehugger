@@ -1,4 +1,4 @@
-package dk.siit.treehugger.core;
+package dk.hug.treehugger.core;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -12,11 +12,11 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import java.util.ArrayList;
 import java.util.List;
 
-import dk.siit.treehugger.model.Feature;
-import dk.siit.treehugger.model.Root;
+import dk.hug.treehugger.model.Feature;
+import dk.hug.treehugger.model.Root;
 
-import static dk.siit.treehugger.core.TreeDBContract.TreeEntry.COLUMN_NAME_COORDINATE_LAT;
-import static dk.siit.treehugger.core.TreeDBContract.TreeEntry.COLUMN_NAME_COORDINATE_LON;
+import static dk.hug.treehugger.core.TreeDBContract.TreeEntry.COLUMN_NAME_COORDINATE_LAT;
+import static dk.hug.treehugger.core.TreeDBContract.TreeEntry.COLUMN_NAME_COORDINATE_LON;
 
 /**
  * Created by  Mads Fisker on 2016 - 09/03/16  21:44.
