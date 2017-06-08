@@ -3,6 +3,7 @@ package dk.hug.treehugger;
 import android.Manifest;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
@@ -18,6 +19,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -46,21 +48,32 @@ public class HeatMapFragment extends Fragment implements OnMapReadyCallback, Hea
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        getActivity().setTitle(getString(R.string.title_activity_heat_maps));
+
         view = inflater.inflate(R.layout.fragment_heat_map, container, false);
 
-        getActivity().setTitle(getString(R.string.title_activity_heat_maps));
+        FragmentManager fm = getChildFragmentManager();
+        MapFragment fr = (MapFragment) fm.findFragmentById(R.id.mapview);
+        if(fr==null) {
+            fr = MapFragment.newInstance();
+            fm.beginTransaction().replace(R.id.mapview, fr).commit();
+        }
+
+
         MobileAds.initialize(this.getActivity(), this.getResources().getString(R.string.unit_id));
         AdView mAdView = (AdView) view.findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
         mAdView.loadAd(adRequest);
+
         mapLoader = new HeatMapLoader(getActivity(), this);
-        getMapFragment().getMapAsync(this);
+        fr.getMapAsync(this);
         if (DBhandler.getTreeState(getActivity()) != 1) {
             if (checkConnectivity()) {
                 new TreeDownload(getActivity(), new Handler.Callback() {
                     @Override
                     public boolean handleMessage(Message msg) {
-                        return false;
+                        mapLoader.execute();
+                        return true;
                     }
                 }).execute();
             } else {

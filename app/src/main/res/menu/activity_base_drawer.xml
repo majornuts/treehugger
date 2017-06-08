@@ -18,10 +18,6 @@
             android:id="@+id/about"
             android:icon="@drawable/ic_info_black_24dp"
             android:title="@string/title_activity_about" />
-        <item
-            android:id="@+id/downlaod"
-            android:icon="@drawable/ic_file_download_black_24dp"
-            android:title="@string/update_trees" />
     </group>
 
     <!--<item android:title="Communicate">-->
