@@ -40,9 +40,7 @@ public class MyMapFragment extends AbstractMapFragment implements OnMapReadyCall
     private static final String TAG = "MyMapFragment";
     private View view;
     private MapLoader mapLoader;
-    private TreeDownload treeDownload;
     private boolean moveCamera = true;
-    private ProgressDialog progressDialog;
 
     private ClusterManager<Pos> mClusterManager;
 

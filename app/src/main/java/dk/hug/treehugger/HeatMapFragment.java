@@ -39,7 +39,6 @@ public class HeatMapFragment extends AbstractMapFragment implements OnMapReadyCa
     private HeatMapLoader mapLoader;
     private View view;
     private boolean moveCamera = true;
-    private ProgressDialog progressDialog;
 
     public HeatMapFragment() {
 
