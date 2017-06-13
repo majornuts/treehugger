@@ -31,21 +31,20 @@ public class TreeDownload extends AsyncTask<Void, Integer, Void> {
     private static final String TAG = "TreeDownload";
     private final Context context;
     private final Handler.Callback sa;
-    private final ProgressDialog progressDialog;
+    private TreeDownloadCallback treeDownloadCallback;
 
     private boolean isDone = false;
 
-
-    public TreeDownload(Context context,Handler.Callback callback) {
+    public TreeDownload(Context context,Handler.Callback callback, TreeDownloadCallback treeDownloadCallback) {
         this.context = context;
         this.sa = callback;
+        this.treeDownloadCallback = treeDownloadCallback;
+    }
 
-
-        progressDialog = new ProgressDialog(context);
-        progressDialog.setMessage(context.getString(R.string.downloading_trees));
-        progressDialog.setCancelable(false);
-        progressDialog.show();
-
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        treeDownloadCallback.downloadStart();
     }
 
     @Override
@@ -77,7 +76,6 @@ public class TreeDownload extends AsyncTask<Void, Integer, Void> {
         return null;
     }
 
-
     @Override
     protected void onPostExecute(Void aVoid) {
         DBhandler.storeTreeState(context, 1);
@@ -86,9 +84,10 @@ public class TreeDownload extends AsyncTask<Void, Integer, Void> {
         b.putBoolean("isDone", isDone);
         Message m = new Message();
         m.setData(b);
-        sa.handleMessage(m);
-
-        progressDialog.dismiss();
+        if(!isCancelled()) {
+            sa.handleMessage(m);
+        }
+        treeDownloadCallback.downloadEnd();
     }
 
 }

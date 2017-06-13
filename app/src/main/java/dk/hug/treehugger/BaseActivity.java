@@ -54,8 +54,12 @@ public class BaseActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        currentNavigationItem = R.id.map;
-        updateNavigationFragment(currentNavigationItem);
+        if(savedInstanceState==null) {
+            currentNavigationItem = R.id.map;
+            updateNavigationFragment(currentNavigationItem);
+        } else {
+            currentNavigationItem = savedInstanceState.getInt("current_fragment");
+        }
     }
 
     @Override
@@ -66,6 +70,12 @@ public class BaseActivity extends AppCompatActivity
         } else {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putInt("current_fragment", currentNavigationItem);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
