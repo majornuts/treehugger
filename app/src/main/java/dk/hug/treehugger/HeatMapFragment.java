@@ -4,14 +4,17 @@ import android.Manifest;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -31,11 +34,12 @@ import com.google.android.gms.maps.model.TileOverlayOptions;
 import dk.hug.treehugger.core.DBhandler;
 
 
-public class HeatMapFragment extends Fragment implements OnMapReadyCallback, HeatMapLoaderCallback {
+public class HeatMapFragment extends AbstractMapFragment implements OnMapReadyCallback, HeatMapLoaderCallback, TreeDownloadCallback {
 
-    private GoogleMap mMap;
     private HeatMapLoader mapLoader;
     private View view;
+    private boolean moveCamera = true;
+    private ProgressDialog progressDialog;
 
     public HeatMapFragment() {
 
@@ -43,7 +47,18 @@ public class HeatMapFragment extends Fragment implements OnMapReadyCallback, Hea
 
     public static HeatMapFragment newInstance() {
         HeatMapFragment fragment = new HeatMapFragment();
+        fragment.setRetainInstance(true);
         return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if(savedInstanceState!=null&&mapLoader!=null
+                &&(mapLoader.getStatus()==AsyncTask.Status.RUNNING
+                ||mapLoader.getStatus()== AsyncTask.Status.PENDING)) {
+            mapLoader.cancel(true);
+        }
     }
 
     @Override
@@ -53,36 +68,31 @@ public class HeatMapFragment extends Fragment implements OnMapReadyCallback, Hea
         view = inflater.inflate(R.layout.fragment_heat_map, container, false);
 
         FragmentManager fm = getChildFragmentManager();
+
         MapFragment fr = (MapFragment) fm.findFragmentById(R.id.mapview);
         if(fr==null) {
             fr = MapFragment.newInstance();
+            fr.setRetainInstance(true);
             fm.beginTransaction().replace(R.id.mapview, fr).commit();
+        } else {
+            moveCamera = false;
         }
-
 
         MobileAds.initialize(this.getActivity(), this.getResources().getString(R.string.unit_id));
         AdView mAdView = (AdView) view.findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
         mAdView.loadAd(adRequest);
 
-        mapLoader = new HeatMapLoader(getActivity(), this);
         fr.getMapAsync(this);
-        if (DBhandler.getTreeState(getActivity()) != 1) {
-            if (checkConnectivity()) {
-                new TreeDownload(getActivity(), new Handler.Callback() {
-                    @Override
-                    public boolean handleMessage(Message msg) {
-                        mapLoader.execute();
-                        return true;
-                    }
-                }).execute();
-            } else {
-                showNoInternet();
-            }
-        } else {
-            mapLoader.execute();
-        }
         return view;
+    }
+
+    @Override
+    public void onDetach() {
+        if(progressDialog!=null&&progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+        super.onDetach();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -114,49 +124,83 @@ public class HeatMapFragment extends Fragment implements OnMapReadyCallback, Hea
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+
+        if(moveCamera) {
+            mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                @Override
+                public void onMapLoaded() {
+                    mapLoader = new HeatMapLoader(HeatMapFragment.this.getActivity(), HeatMapFragment.this);
+
+                    if (DBhandler.getTreeState(getActivity()) != 1) {
+                        if (checkConnectivity()) {
+                            treeDownload = new TreeDownload(getActivity(), new Handler.Callback() {
+                                @Override
+                                public boolean handleMessage(Message msg) {
+                                    mapLoader = new HeatMapLoader(HeatMapFragment.this.getActivity(), HeatMapFragment.this);
+                                    mMap.clear();
+                                    mapLoader.execute();
+                                    return true;
+                                }
+                            }, HeatMapFragment.this);
+                            treeDownload.execute();
+                        } else {
+                            showNoInternet();
+                        }
+                    } else {
+                        mapLoader.execute();
+                    }
+                }
+            });
+
+            if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(getActivity(), new String[]{
+                                Manifest.permission.ACCESS_FINE_LOCATION,
+                                Manifest.permission.ACCESS_COARSE_LOCATION},
+                        2);
+            }
+            if (canAccessLocation()) {
+                mMap.setMyLocationEnabled(true);
+            }
+
+            LatLng dis = new LatLng(55.678814, 12.564026);
+
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(dis, 14));
+        }
+
         mMap.getUiSettings().setRotateGesturesEnabled(false);
         mMap.getUiSettings().setTiltGesturesEnabled(false);
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(60, 14), 0));
-
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{
-                            Manifest.permission.ACCESS_FINE_LOCATION,
-                            Manifest.permission.ACCESS_COARSE_LOCATION},
-                    2);
-        }
-        if (canAccessLocation()) {
-            mMap.setMyLocationEnabled(true);
-        }
-
-        LatLng dis = new LatLng(55.678814, 12.564026);
-
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(dis, 14));
-
-        if (DBhandler.getTreeState(getActivity()) == 1) {
-            mapLoader = new HeatMapLoader(getActivity(), this);
-            mapLoader.execute();
-        }
     }
 
     @Override
     public void updateHeatMap(final TileOverlayOptions overlayOptions) {
         // Add a tile overlay to the map, using the heat map tile provider.
-//                mMap.addTileOverlay(overlayOptions);
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mMap.addTileOverlay(overlayOptions);
-            }
-        });
+        mMap.addTileOverlay(overlayOptions);
     }
-    private MapFragment getMapFragment() {
-        FragmentManager fm = null;
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            fm = getFragmentManager();
-        } else {
-            fm = getChildFragmentManager();
-        }
-        return (MapFragment) fm.findFragmentById(R.id.mapview);
+
+    @Override
+    public void startLoader() {
+        progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setMessage(getString(R.string.planting_trees));
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+    }
+
+    @Override
+    public void stopLoader() {
+        progressDialog.dismiss();
+    }
+
+    @Override
+    public void downloadStart() {
+        progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setMessage(getString(R.string.downloading_trees));
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+    }
+
+    @Override
+    public void downloadEnd() {
+        progressDialog.dismiss();
     }
 }

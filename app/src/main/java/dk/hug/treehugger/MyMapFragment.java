@@ -4,10 +4,12 @@ import android.Manifest;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -34,14 +36,15 @@ import dk.hug.treehugger.core.DBhandler;
 import dk.hug.treehugger.model.Pos;
 
 
-public class MyMapFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnCameraMoveListener {
+public class MyMapFragment extends AbstractMapFragment implements OnMapReadyCallback, GoogleMap.OnCameraMoveListener, TreeDownloadCallback {
     private static final String TAG = "MyMapFragment";
     private View view;
     private MapLoader mapLoader;
-
+    private TreeDownload treeDownload;
+    private boolean moveCamera = true;
+    private ProgressDialog progressDialog;
 
     private ClusterManager<Pos> mClusterManager;
-    private GoogleMap mMap;
 
     //todo https://androidresearch.wordpress.com/2013/05/10/dealing-with-asynctask-and-screen-orientation/   locked som portret mode in til nu.
     public MyMapFragment() {
@@ -60,6 +63,11 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback, Googl
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(savedInstanceState!=null&&mapLoader!=null
+                &&(mapLoader.getStatus()==AsyncTask.Status.RUNNING
+                ||mapLoader.getStatus()== AsyncTask.Status.PENDING)) {
+            mapLoader.cancel(true);
+        }
         if (getArguments() != null) {
         }
     }
@@ -70,10 +78,14 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback, Googl
         view = inflater.inflate(R.layout.fragment_map, container, false);
 
         FragmentManager fm = getChildFragmentManager();
+
         MapFragment fr = (MapFragment) fm.findFragmentById(R.id.map);
         if(fr==null) {
             fr = MapFragment.newInstance();
+            fr.setRetainInstance(true);
             fm.beginTransaction().replace(R.id.map, fr).commit();
+        } else {
+            moveCamera = false;
         }
 
         MobileAds.initialize(this.getActivity(), this.getResources().getString(R.string.unit_id));
@@ -121,8 +133,6 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback, Googl
 
         googleMap.setOnCameraMoveListener(this);
 
-        LatLng dis = new LatLng(55.678814, 12.564026);
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(dis, 14));
         googleMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
             @Override
             public void onMapLoaded() {
@@ -132,13 +142,16 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback, Googl
                 mapLoader = new MapLoader(getActivity(), mClusterManager, googleMap.getProjection());
                 if (DBhandler.getTreeState(getActivity()) != 1) {
                     if (checkConnectivity()) {
-                        new TreeDownload(getActivity(), new Handler.Callback() {
+                        treeDownload = new TreeDownload(getActivity(), new Handler.Callback() {
                             @Override
                             public boolean handleMessage(Message msg) {
+                                mapLoader = new MapLoader(getActivity(), mClusterManager, googleMap.getProjection());
+                                mMap.clear();
                                 mapLoader.execute();
-                                return false;
+                                return true;
                             }
-                        }).execute();
+                        }, MyMapFragment.this);
+                        treeDownload.execute();
                     } else {
                         showNoInternet();
                     }
@@ -158,6 +171,11 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback, Googl
             }
         });
 
+        if(moveCamera) {
+            LatLng dis = new LatLng(55.678814, 12.564026);
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(dis, 14));
+        }
+
         googleMap.getUiSettings().setRotateGesturesEnabled(false);
         googleMap.getUiSettings().setTiltGesturesEnabled(false);
         googleMap.getUiSettings().setMyLocationButtonEnabled(true);
@@ -170,17 +188,6 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback, Googl
         });
     }
 
-
-    private MapFragment getMapFragment() {
-        FragmentManager fm = null;
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            fm = getFragmentManager();
-        } else {
-            fm = getChildFragmentManager();
-        }
-        return (MapFragment) fm.findFragmentById(R.id.map);
-    }
-
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -188,8 +195,29 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback, Googl
     }
 
     @Override
+    public void onDetach() {
+        if(progressDialog!=null&&progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+        super.onDetach();
+    }
+
+    @Override
     public void onCameraMove() {
         mapLoader = new MapLoader(getActivity(), mClusterManager, mMap.getProjection());
         mapLoader.execute();
+    }
+
+    @Override
+    public void downloadStart() {
+        progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setMessage(getString(R.string.downloading_trees));
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+    }
+
+    @Override
+    public void downloadEnd() {
+        progressDialog.dismiss();
     }
 }

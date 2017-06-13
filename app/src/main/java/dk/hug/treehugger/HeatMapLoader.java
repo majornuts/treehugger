@@ -9,13 +9,13 @@ import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import dk.hug.treehugger.core.DBhandler;
 import dk.hug.treehugger.core.Tree;
 import dk.hug.treehugger.model.Feature;
 
-class HeatMapLoader extends AsyncTask<Void, Void, Void> {
-    private final ProgressDialog progressDialog;
+class HeatMapLoader extends AsyncTask<Void, Void, List<LatLng>> {
     private HeatmapTileProvider mProvider;
     private Context context;
     private HeatMapLoaderCallback callback;
@@ -24,16 +24,11 @@ class HeatMapLoader extends AsyncTask<Void, Void, Void> {
         this.context = context;
         this.callback = callback;
 
-        progressDialog = new ProgressDialog(context);
-        progressDialog.setMessage(context.getString(R.string.planting_trees));
-        progressDialog.setCancelable(false);
-        progressDialog.show();
-
 
     }
 
     @Override
-    protected Void doInBackground(Void... params) {
+    protected List<LatLng> doInBackground(Void... params) {
 
         ArrayList<LatLng> list = new ArrayList<>();
 
@@ -44,19 +39,16 @@ class HeatMapLoader extends AsyncTask<Void, Void, Void> {
             list.add(geo);
         }
 
+        return list;
+    }
+
+    @Override
+    protected void onPostExecute(List<LatLng> list) {
         if (!list.isEmpty()) {
             mProvider = new HeatmapTileProvider.Builder()
                     .data(list)
                     .build();
             callback.updateHeatMap(new TileOverlayOptions().tileProvider(mProvider));
         }
-
-
-        return null;
-    }
-
-    @Override
-    protected void onPostExecute(Void aVoid) {
-        progressDialog.dismiss();
     }
 }
