@@ -37,7 +37,6 @@ import dk.hug.treehugger.core.DBhandler;
 public class HeatMapFragment extends AbstractMapFragment implements OnMapReadyCallback, HeatMapLoaderCallback, TreeDownloadCallback {
 
     private HeatMapLoader mapLoader;
-    private View view;
     private boolean moveCamera = true;
 
     public HeatMapFragment() {
@@ -87,88 +86,53 @@ public class HeatMapFragment extends AbstractMapFragment implements OnMapReadyCa
     }
 
     @Override
-    public void onDetach() {
-        if(progressDialog!=null&&progressDialog.isShowing()) {
-            progressDialog.dismiss();
-        }
-        super.onDetach();
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    private boolean hasPermission(String perm) {
-        return (PackageManager.PERMISSION_GRANTED == getActivity().checkSelfPermission(perm));
-    }
-
-    private boolean canAccessLocation() {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            return (hasPermission(Manifest.permission.ACCESS_FINE_LOCATION));
-        } else {
-            return true;
-        }
-    }
-
-    private boolean checkConnectivity() {
-        ConnectivityManager cm =
-                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        return activeNetwork != null &&
-                activeNetwork.isConnectedOrConnecting();
-    }
-
-    private void showNoInternet() {
-        Snackbar.make(view, R.string.no_internet, Snackbar.LENGTH_LONG).show();
-    }
-
-    @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
+
         if(moveCamera) {
-            mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
-                @Override
-                public void onMapLoaded() {
-                    mapLoader = new HeatMapLoader(HeatMapFragment.this.getActivity(), HeatMapFragment.this);
-
-                    if (DBhandler.getTreeState(getActivity()) != 1) {
-                        if (checkConnectivity()) {
-                            treeDownload = new TreeDownload(getActivity(), new Handler.Callback() {
-                                @Override
-                                public boolean handleMessage(Message msg) {
-                                    mapLoader = new HeatMapLoader(HeatMapFragment.this.getActivity(), HeatMapFragment.this);
-                                    mMap.clear();
-                                    mapLoader.execute();
-                                    return true;
-                                }
-                            }, HeatMapFragment.this);
-                            treeDownload.execute();
-                        } else {
-                            showNoInternet();
-                        }
-                    } else {
-                        mapLoader.execute();
-                    }
-                }
-            });
-
-            if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(getActivity(), new String[]{
-                                Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.ACCESS_COARSE_LOCATION},
-                        2);
-            }
-            if (canAccessLocation()) {
-                mMap.setMyLocationEnabled(true);
-            }
-
             LatLng dis = new LatLng(55.678814, 12.564026);
 
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(dis, 14));
         }
 
-        mMap.getUiSettings().setRotateGesturesEnabled(false);
-        mMap.getUiSettings().setTiltGesturesEnabled(false);
-        mMap.getUiSettings().setMyLocationButtonEnabled(true);
+        setupMap();
+
+        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(), new String[]{
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION},
+                    2);
+        }
+        if (canAccessLocation()) {
+            mMap.setMyLocationEnabled(true);
+        }
+
+        mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+            @Override
+            public void onMapLoaded() {
+                mapLoader = new HeatMapLoader(HeatMapFragment.this.getActivity(), HeatMapFragment.this);
+
+                if (DBhandler.getTreeState(getActivity()) != 1) {
+                    if (checkConnectivity()) {
+                        treeDownload = new TreeDownload(getActivity(), new Handler.Callback() {
+                            @Override
+                            public boolean handleMessage(Message msg) {
+                                mapLoader = new HeatMapLoader(HeatMapFragment.this.getActivity(), HeatMapFragment.this);
+                                mMap.clear();
+                                mapLoader.execute();
+                                return true;
+                            }
+                        }, HeatMapFragment.this);
+                        treeDownload.execute();
+                    } else {
+                        showNoInternet();
+                    }
+                } else {
+                    mapLoader.execute();
+                }
+            }
+        });
     }
 
     @Override
