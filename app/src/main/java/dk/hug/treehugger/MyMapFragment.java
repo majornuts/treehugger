@@ -39,7 +39,6 @@ import dk.hug.treehugger.model.Pos;
 public class MyMapFragment extends AbstractMapFragment implements OnMapReadyCallback, GoogleMap.OnCameraMoveListener, TreeDownloadCallback {
     private static final String TAG = "MyMapFragment";
     private MapLoader mapLoader;
-    private boolean moveCamera;
 
     private ClusterManager<Pos> mClusterManager;
 
@@ -57,23 +56,19 @@ public class MyMapFragment extends AbstractMapFragment implements OnMapReadyCall
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        moveCamera = true;
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         getActivity().setTitle(getString(R.string.title_activity_maps));
         view = inflater.inflate(R.layout.fragment_map, container, false);
 
-        FragmentManager fm = getChildFragmentManager();
+        FragmentManager fm = getFragmentManager();
 
         MapFragment fr = (MapFragment) fm.findFragmentById(R.id.map);
         if(fr==null) {
             fr = MapFragment.newInstance();
-            fr.setRetainInstance(true);
             fm.beginTransaction().replace(R.id.map, fr).commit();
+            moveCamera = true;
+        } else {
+            moveCamera = false;
         }
 
         MobileAds.initialize(this.getActivity(), this.getResources().getString(R.string.unit_id));

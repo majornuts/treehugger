@@ -35,9 +35,7 @@ import dk.hug.treehugger.core.DBhandler;
 
 
 public class HeatMapFragment extends AbstractMapFragment implements OnMapReadyCallback, HeatMapLoaderCallback, TreeDownloadCallback {
-
     private HeatMapLoader mapLoader;
-    private boolean moveCamera;
 
     public HeatMapFragment() {
 
@@ -50,24 +48,20 @@ public class HeatMapFragment extends AbstractMapFragment implements OnMapReadyCa
     }
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        moveCamera = true;
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         getActivity().setTitle(getString(R.string.title_activity_heat_maps));
 
         view = inflater.inflate(R.layout.fragment_heat_map, container, false);
 
-        FragmentManager fm = getChildFragmentManager();
+        FragmentManager fm = getFragmentManager();
 
         MapFragment fr = (MapFragment) fm.findFragmentById(R.id.mapview);
         if(fr==null) {
             fr = MapFragment.newInstance();
-            fr.setRetainInstance(true);
             fm.beginTransaction().replace(R.id.mapview, fr).commit();
+            moveCamera = true;
+        } else {
+            moveCamera = false;
         }
 
         MobileAds.initialize(this.getActivity(), this.getResources().getString(R.string.unit_id));

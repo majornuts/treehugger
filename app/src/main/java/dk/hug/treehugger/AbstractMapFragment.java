@@ -22,6 +22,7 @@ public abstract class AbstractMapFragment extends Fragment {
     protected GoogleMap mMap;
     protected ProgressDialog progressDialog;
     protected View view;
+    protected boolean moveCamera;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
