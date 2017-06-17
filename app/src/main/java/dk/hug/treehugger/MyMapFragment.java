@@ -38,13 +38,11 @@ import dk.hug.treehugger.model.Pos;
 
 public class MyMapFragment extends AbstractMapFragment implements OnMapReadyCallback, GoogleMap.OnCameraMoveListener, TreeDownloadCallback {
     private static final String TAG = "MyMapFragment";
-    private View view;
     private MapLoader mapLoader;
-    private boolean moveCamera = true;
+    private boolean moveCamera;
 
     private ClusterManager<Pos> mClusterManager;
 
-    //todo https://androidresearch.wordpress.com/2013/05/10/dealing-with-asynctask-and-screen-orientation/   locked som portret mode in til nu.
     public MyMapFragment() {
         // Required empty public constructor
     }
@@ -61,13 +59,7 @@ public class MyMapFragment extends AbstractMapFragment implements OnMapReadyCall
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(savedInstanceState!=null&&mapLoader!=null
-                &&(mapLoader.getStatus()==AsyncTask.Status.RUNNING
-                ||mapLoader.getStatus()== AsyncTask.Status.PENDING)) {
-            mapLoader.cancel(true);
-        }
-        if (getArguments() != null) {
-        }
+        moveCamera = true;
     }
 
     @Override
@@ -82,8 +74,6 @@ public class MyMapFragment extends AbstractMapFragment implements OnMapReadyCall
             fr = MapFragment.newInstance();
             fr.setRetainInstance(true);
             fm.beginTransaction().replace(R.id.map, fr).commit();
-        } else {
-            moveCamera = false;
         }
 
         MobileAds.initialize(this.getActivity(), this.getResources().getString(R.string.unit_id));
@@ -104,6 +94,7 @@ public class MyMapFragment extends AbstractMapFragment implements OnMapReadyCall
         if(moveCamera) {
             LatLng dis = new LatLng(55.678814, 12.564026);
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(dis, 14));
+            moveCamera = false;
         }
 
         setupMap();

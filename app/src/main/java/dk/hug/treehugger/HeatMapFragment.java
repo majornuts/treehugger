@@ -37,7 +37,7 @@ import dk.hug.treehugger.core.DBhandler;
 public class HeatMapFragment extends AbstractMapFragment implements OnMapReadyCallback, HeatMapLoaderCallback, TreeDownloadCallback {
 
     private HeatMapLoader mapLoader;
-    private boolean moveCamera = true;
+    private boolean moveCamera;
 
     public HeatMapFragment() {
 
@@ -52,11 +52,7 @@ public class HeatMapFragment extends AbstractMapFragment implements OnMapReadyCa
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(savedInstanceState!=null&&mapLoader!=null
-                &&(mapLoader.getStatus()==AsyncTask.Status.RUNNING
-                ||mapLoader.getStatus()== AsyncTask.Status.PENDING)) {
-            mapLoader.cancel(true);
-        }
+        moveCamera = true;
     }
 
     @Override
@@ -72,8 +68,6 @@ public class HeatMapFragment extends AbstractMapFragment implements OnMapReadyCa
             fr = MapFragment.newInstance();
             fr.setRetainInstance(true);
             fm.beginTransaction().replace(R.id.mapview, fr).commit();
-        } else {
-            moveCamera = false;
         }
 
         MobileAds.initialize(this.getActivity(), this.getResources().getString(R.string.unit_id));
@@ -89,11 +83,10 @@ public class HeatMapFragment extends AbstractMapFragment implements OnMapReadyCa
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-
         if(moveCamera) {
             LatLng dis = new LatLng(55.678814, 12.564026);
-
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(dis, 14));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(dis, 14));
+            moveCamera = false;
         }
 
         setupMap();
