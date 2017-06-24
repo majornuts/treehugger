@@ -87,7 +87,8 @@ public class DBhandler {
     }
 
     public static void closeDB() {
-        dbstatic.close();
+        if(dbstatic!=null)
+            dbstatic.close();
         dbstatic = null;
     }
 

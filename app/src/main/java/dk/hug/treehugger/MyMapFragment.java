@@ -38,13 +38,10 @@ import dk.hug.treehugger.model.Pos;
 
 public class MyMapFragment extends AbstractMapFragment implements OnMapReadyCallback, GoogleMap.OnCameraMoveListener, TreeDownloadCallback {
     private static final String TAG = "MyMapFragment";
-    private View view;
     private MapLoader mapLoader;
-    private boolean moveCamera = true;
 
     private ClusterManager<Pos> mClusterManager;
 
-    //todo https://androidresearch.wordpress.com/2013/05/10/dealing-with-asynctask-and-screen-orientation/   locked som portret mode in til nu.
     public MyMapFragment() {
         // Required empty public constructor
     }
@@ -59,29 +56,17 @@ public class MyMapFragment extends AbstractMapFragment implements OnMapReadyCall
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if(savedInstanceState!=null&&mapLoader!=null
-                &&(mapLoader.getStatus()==AsyncTask.Status.RUNNING
-                ||mapLoader.getStatus()== AsyncTask.Status.PENDING)) {
-            mapLoader.cancel(true);
-        }
-        if (getArguments() != null) {
-        }
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         getActivity().setTitle(getString(R.string.title_activity_maps));
         view = inflater.inflate(R.layout.fragment_map, container, false);
 
-        FragmentManager fm = getChildFragmentManager();
+        FragmentManager fm = getFragmentManager();
 
         MapFragment fr = (MapFragment) fm.findFragmentById(R.id.map);
         if(fr==null) {
             fr = MapFragment.newInstance();
-            fr.setRetainInstance(true);
             fm.beginTransaction().replace(R.id.map, fr).commit();
+            moveCamera = true;
         } else {
             moveCamera = false;
         }
@@ -97,41 +82,38 @@ public class MyMapFragment extends AbstractMapFragment implements OnMapReadyCall
 
     }
 
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    private boolean hasPermission(String perm) {
-        return (PackageManager.PERMISSION_GRANTED == getActivity().checkSelfPermission(perm));
-    }
-
-
-    private boolean canAccessLocation() {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            return (hasPermission(Manifest.permission.ACCESS_FINE_LOCATION));
-        } else {
-            return true;
-        }
-    }
-
-
-    private void showNoInternet() {
-        Snackbar.make(view, R.string.no_internet, Snackbar.LENGTH_LONG).show();
-    }
-
-    private boolean checkConnectivity() {
-        ConnectivityManager cm =
-                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        return activeNetwork != null &&
-                activeNetwork.isConnectedOrConnecting();
-    }
-
     @Override
     public void onMapReady(final GoogleMap googleMap) {
+        mMap = googleMap;
 
-        googleMap.setOnCameraMoveListener(this);
+        if(moveCamera) {
+            LatLng dis = new LatLng(55.678814, 12.564026);
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(dis, 14));
+            moveCamera = false;
+        }
 
-        googleMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+        setupMap();
+
+        mMap.setOnCameraMoveListener(this);
+        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(), new String[]{
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION},
+                    2);
+        }
+        if (canAccessLocation()) {
+            mMap.setMyLocationEnabled(true);
+        }
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                marker.showInfoWindow();
+                return true;
+            }
+        });
+
+        mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
             @Override
             public void onMapLoaded() {
                 mClusterManager = new ClusterManager<Pos>(getActivity(), googleMap);
@@ -156,48 +138,14 @@ public class MyMapFragment extends AbstractMapFragment implements OnMapReadyCall
                 } else {
                     mapLoader.execute();
                 }
-
-                if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(getActivity(), new String[]{
-                                    Manifest.permission.ACCESS_FINE_LOCATION,
-                                    Manifest.permission.ACCESS_COARSE_LOCATION},
-                            2);
-                }
-                if (canAccessLocation()) {
-                    googleMap.setMyLocationEnabled(true);
-                }
-            }
-        });
-
-        if(moveCamera) {
-            LatLng dis = new LatLng(55.678814, 12.564026);
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(dis, 14));
-        }
-
-        googleMap.getUiSettings().setRotateGesturesEnabled(false);
-        googleMap.getUiSettings().setTiltGesturesEnabled(false);
-        googleMap.getUiSettings().setMyLocationButtonEnabled(true);
-        googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                marker.showInfoWindow();
-                return true;
             }
         });
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onStop() {
+        super.onStop();
         DBhandler.closeDB();
-    }
-
-    @Override
-    public void onDetach() {
-        if(progressDialog!=null&&progressDialog.isShowing()) {
-            progressDialog.dismiss();
-        }
-        super.onDetach();
     }
 
     @Override
