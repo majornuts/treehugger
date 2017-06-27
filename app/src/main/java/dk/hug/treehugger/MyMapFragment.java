@@ -17,6 +17,7 @@ import android.os.Message;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,7 +50,6 @@ public class MyMapFragment extends AbstractMapFragment implements OnMapReadyCall
     public static MyMapFragment newInstance() {
         MyMapFragment fragment = new MyMapFragment();
         Bundle args = new Bundle();
-
         fragment.setArguments(args);
 
         return fragment;
@@ -62,8 +62,12 @@ public class MyMapFragment extends AbstractMapFragment implements OnMapReadyCall
 
         FragmentManager fm = getFragmentManager();
 
+        boolean refresh = true;
+        if(savedInstanceState!=null)
+            refresh=false;
+
         MapFragment fr = (MapFragment) fm.findFragmentById(R.id.map);
-        if(fr==null) {
+        if(fr==null||refresh) {
             fr = MapFragment.newInstance();
             fm.beginTransaction().replace(R.id.map, fr).commit();
             moveCamera = true;
@@ -76,10 +80,10 @@ public class MyMapFragment extends AbstractMapFragment implements OnMapReadyCall
         AdView mAdView = (AdView) view.findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
         mAdView.loadAd(adRequest);
+
         fr.getMapAsync(this);
 
         return view;
-
     }
 
     @Override
