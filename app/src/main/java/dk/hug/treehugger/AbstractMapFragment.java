@@ -52,7 +52,7 @@ public abstract class AbstractMapFragment extends Fragment {
     }
 
     protected boolean canAccessLocation() {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
             return (hasPermission(android.Manifest.permission.ACCESS_FINE_LOCATION));
         } else {
             return true;
