@@ -55,8 +55,12 @@ public class HeatMapFragment extends AbstractMapFragment implements OnMapReadyCa
 
         FragmentManager fm = getFragmentManager();
 
+        boolean refresh = true;
+        if(savedInstanceState!=null)
+            refresh=false;
+
         MapFragment fr = (MapFragment) fm.findFragmentById(R.id.mapview);
-        if(fr==null) {
+        if(fr==null||refresh) {
             fr = MapFragment.newInstance();
             fm.beginTransaction().replace(R.id.mapview, fr).commit();
             moveCamera = true;
