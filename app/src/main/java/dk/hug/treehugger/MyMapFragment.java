@@ -75,11 +75,11 @@ public class MyMapFragment extends AbstractMapFragment implements OnMapReadyCall
             moveCamera = false;
         }
 
-        MobileAds.initialize(this.getActivity(), this.getResources().getString(R.string.unit_id));
-
-        AdView mAdView = (AdView) view.findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
-        mAdView.loadAd(adRequest);
+//        MobileAds.initialize(this.getActivity(), this.getResources().getString(R.string.unit_id));
+//
+//        AdView mAdView = (AdView) view.findViewById(R.id.adView);
+//        AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
+//        mAdView.loadAd(adRequest);
 
         fr.getMapAsync(this);
 

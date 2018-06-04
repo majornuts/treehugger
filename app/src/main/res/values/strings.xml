@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Copenhagen Trees</string>
+    <string name="app_name">Copenhagen Street Trees</string>
     <string name="title_activity_maps">Map</string>
 
     <string name="title_activity_heat_maps">Heat map</string>
@@ -10,7 +10,7 @@
     <string name="update_trees">Update trees</string>
     <string name="downloading_trees">Downloading trees</string>
     <string name="planting_trees">Planting trees</string>
-    <string name="title_activity_base">Copenhagen Trees</string>
+    <string name="title_activity_base">Copenhagen Street Trees</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>

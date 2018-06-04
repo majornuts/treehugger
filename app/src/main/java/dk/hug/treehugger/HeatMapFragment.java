@@ -68,10 +68,10 @@ public class HeatMapFragment extends AbstractMapFragment implements OnMapReadyCa
             moveCamera = false;
         }
 
-        MobileAds.initialize(this.getActivity(), this.getResources().getString(R.string.unit_id));
-        AdView mAdView = (AdView) view.findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
-        mAdView.loadAd(adRequest);
+//        MobileAds.initialize(this.getActivity(), this.getResources().getString(R.string.unit_id));
+//        AdView mAdView = (AdView) view.findViewById(R.id.adView);
+//        AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
+//        mAdView.loadAd(adRequest);
 
         fr.getMapAsync(this);
         return view;
