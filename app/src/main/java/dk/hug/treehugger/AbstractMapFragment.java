@@ -1,18 +1,19 @@
 package dk.hug.treehugger;
 
-import android.*;
 import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
-import android.support.design.widget.Snackbar;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+
+import com.google.android.material.snackbar.Snackbar;
+
 import android.view.View;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -28,23 +29,25 @@ public abstract class AbstractMapFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if(savedInstanceState==null) {
+        if (savedInstanceState == null) {
             setRetainInstance(true);
         }
     }
 
     @Override
     public void onDetach() {
-        if(progressDialog!=null&&progressDialog.isShowing()) {
+        if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
         super.onDetach();
     }
 
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     private boolean hasPermission(String perm) {
-        return (PackageManager.PERMISSION_GRANTED == getActivity().checkSelfPermission(perm));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return (PackageManager.PERMISSION_GRANTED == getActivity().checkSelfPermission(perm));
+        }
+        return true;
     }
 
     protected void showNoInternet() {
@@ -60,12 +63,10 @@ public abstract class AbstractMapFragment extends Fragment {
     }
 
     protected boolean checkConnectivity() {
-        ConnectivityManager cm =
-                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
 
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        return activeNetwork != null &&
-                activeNetwork.isConnectedOrConnecting();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
     }
 
     protected void setupMap() {

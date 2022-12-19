@@ -2,8 +2,11 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/TreeHugger.iml" filepath="$PROJECT_DIR$/TreeHugger.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/treehugger.iml" filepath="$PROJECT_DIR$/.idea/treehugger.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/treehugger.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/treehugger.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/treehugger.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/treehugger.app.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/treehugger.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/treehugger.app.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/treehugger.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/treehugger.app.unitTest.iml" />
     </modules>
   </component>
 </project>
