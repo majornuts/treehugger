@@ -50,7 +50,7 @@ public class TreeDownload extends AsyncTask<Void, Integer, Void> {
     @Override
     protected Void doInBackground(Void... params) {
         Log.e(TAG, "doInBackground: start ");
-        String url = "http://wfs-kbhkort.kk.dk/k101/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=k101:gadetraer&outputFormat=json&SRSNAME=EPSG:4326";
+        String url = "https://wfs-kbhkort.kk.dk/ows?service=wfs&version=1.0.0&request=GetFeature&typeName=k101:gadetraer&outputFormat=json&SRSNAME=EPSG:25832";
         InputStream is = null;
         Root root = null;
         publishProgress(1);
