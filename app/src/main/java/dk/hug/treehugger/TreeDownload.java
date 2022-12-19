@@ -49,8 +49,8 @@ public class TreeDownload extends AsyncTask<Void, Integer, Void> {
 
     @Override
     protected Void doInBackground(Void... params) {
-        Log.e(TAG, "doInBackground: start ");
-        String url = "https://wfs-kbhkort.kk.dk/ows?service=wfs&version=1.0.0&request=GetFeature&typeName=k101:gadetraer&outputFormat=json&SRSNAME=EPSG:25832";
+        Log.d(TAG, "doInBackground: start ");
+        String url = "https://wfs-kbhkort.kk.dk/ows?service=wfs&version=1.0.0&request=GetFeature&typeName=k101:gadetraer&outputFormat=json&SRSNAME=EPSG:4326";
         InputStream is = null;
         Root root = null;
         publishProgress(1);
@@ -78,6 +78,7 @@ public class TreeDownload extends AsyncTask<Void, Integer, Void> {
 
     @Override
     protected void onPostExecute(Void aVoid) {
+        Log.d(TAG, "doInBackground: done ");
         DBhandler.storeTreeState(context, 1);
 
         Bundle b = new Bundle();
