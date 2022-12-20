@@ -1,7 +1,9 @@
 package dk.hug.treehugger;
 
-public interface TreeDownloadCallback {
+import android.content.Context;
 
+public interface TreeDownloadCallback {
+    Context getContext();
     void downloadStart();
-    void downloadEnd();
+    void downloadEnd(boolean isDone);
 }

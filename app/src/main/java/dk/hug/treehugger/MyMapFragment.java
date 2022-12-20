@@ -3,7 +3,9 @@ package dk.hug.treehugger;
 import android.Manifest;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -26,10 +28,10 @@ import dk.hug.treehugger.core.DBhandler;
 import dk.hug.treehugger.model.Pos;
 
 
-public class MyMapFragment extends AbstractMapFragment implements OnMapReadyCallback, GoogleMap.OnCameraMoveListener, TreeDownloadCallback {
+public class MyMapFragment extends AbstractMapFragment implements OnMapReadyCallback, GoogleMap.OnCameraMoveListener {
     private static final String TAG = "MyMapFragment";
     private MapLoader mapLoader;
-
+    private DownloadCallback downloadCallback;
     private ClusterManager<Pos> mClusterManager;
 
     public MyMapFragment() {
@@ -115,15 +117,10 @@ public class MyMapFragment extends AbstractMapFragment implements OnMapReadyCall
                 mapLoader = new MapLoader(getActivity(), mClusterManager, googleMap.getProjection());
                 if (DBhandler.getTreeState(getActivity()) != 1) {
                     if (checkConnectivity()) {
-                        treeDownload = new TreeDownload(getActivity(), new Handler.Callback() {
-                            @Override
-                            public boolean handleMessage(Message msg) {
-                                mapLoader = new MapLoader(getActivity(), mClusterManager, googleMap.getProjection());
-                                mMap.clear();
-                                mapLoader.execute();
-                                return true;
-                            }
-                        }, MyMapFragment.this);
+                        if (downloadCallback == null) {
+                            downloadCallback = new DownloadCallback(mMap);
+                        }
+                        treeDownload = new TreeDownload(downloadCallback);
                         treeDownload.execute();
                     } else {
                         showNoInternet();
@@ -137,9 +134,11 @@ public class MyMapFragment extends AbstractMapFragment implements OnMapReadyCall
 
     @Override
     public void onStop() {
-        super.onStop();
+        downloadCallback = null;
         DBhandler.closeDB();
+        super.onStop();
     }
+
 
     @Override
     public void onCameraMove() {
@@ -147,16 +146,33 @@ public class MyMapFragment extends AbstractMapFragment implements OnMapReadyCall
         mapLoader.execute();
     }
 
-    @Override
-    public void downloadStart() {
-        progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setMessage(getString(R.string.downloading_trees));
-        progressDialog.setCancelable(false);
-        progressDialog.show();
-    }
+    private class DownloadCallback implements TreeDownloadCallback {
+        private final GoogleMap googleMap;
+        public DownloadCallback(GoogleMap googleMap) {
+            this.googleMap = googleMap;
+        }
 
-    @Override
-    public void downloadEnd() {
-        progressDialog.dismiss();
+        @Override
+        public Context getContext() {
+            return MyMapFragment.this.getActivity();
+        }
+
+        @Override
+        public void downloadStart() {
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setMessage(getString(R.string.downloading_trees));
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+        }
+
+        @Override
+        public void downloadEnd(boolean isDone) {
+            if (isDone) {
+                mapLoader = new MapLoader(getActivity(), mClusterManager, googleMap.getProjection());
+                mMap.clear();
+                mapLoader.execute();
+            }
+            progressDialog.dismiss();
+        }
     }
 }

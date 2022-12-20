@@ -3,6 +3,7 @@ package dk.hug.treehugger;
 import android.Manifest;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,8 +22,9 @@ import com.google.android.gms.maps.model.TileOverlayOptions;
 import dk.hug.treehugger.core.DBhandler;
 
 
-public class HeatMapFragment extends AbstractMapFragment implements OnMapReadyCallback, HeatMapLoaderCallback, TreeDownloadCallback {
+public class HeatMapFragment extends AbstractMapFragment implements OnMapReadyCallback, HeatMapLoaderCallback {
     private HeatMapLoader mapLoader;
+    private DownloadCallback downloadCallback;
 
     public HeatMapFragment() {
 
@@ -91,12 +93,10 @@ public class HeatMapFragment extends AbstractMapFragment implements OnMapReadyCa
 
             if (DBhandler.getTreeState(getActivity()) != 1) {
                 if (checkConnectivity()) {
-                    treeDownload = new TreeDownload(getActivity(), msg -> {
-                        mapLoader = new HeatMapLoader(HeatMapFragment.this.getActivity(), HeatMapFragment.this);
-                        mMap.clear();
-                        mapLoader.execute();
-                        return true;
-                    }, HeatMapFragment.this);
+                    if (downloadCallback == null) {
+                        downloadCallback = new DownloadCallback();
+                    }
+                    treeDownload = new TreeDownload(downloadCallback);
                     treeDownload.execute();
                 } else {
                     showNoInternet();
@@ -126,16 +126,30 @@ public class HeatMapFragment extends AbstractMapFragment implements OnMapReadyCa
         progressDialog.dismiss();
     }
 
-    @Override
-    public void downloadStart() {
-        progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setMessage(getString(R.string.downloading_trees));
-        progressDialog.setCancelable(false);
-        progressDialog.show();
-    }
 
-    @Override
-    public void downloadEnd() {
-        progressDialog.dismiss();
+    private class DownloadCallback implements TreeDownloadCallback {
+
+        @Override
+        public Context getContext() {
+            return HeatMapFragment.this.getActivity();
+        }
+
+        @Override
+        public void downloadStart() {
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setMessage(getString(R.string.downloading_trees));
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+        }
+
+        @Override
+        public void downloadEnd(boolean isDone) {
+            if (isDone) {
+                mapLoader = new HeatMapLoader(HeatMapFragment.this.getActivity(), HeatMapFragment.this);
+                mMap.clear();
+                mapLoader.execute();
+            }
+            progressDialog.dismiss();
+        }
     }
 }
