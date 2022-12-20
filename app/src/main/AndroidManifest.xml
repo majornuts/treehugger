@@ -21,6 +21,10 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
+        <meta-data
+            android:name="firebase_crashlytics_collection_enabled"
+            android:value="@bool/crashlytics_enabled" />
+
         <activity
             android:name=".BaseActivity"
             android:label="@string/title_activity_base"
