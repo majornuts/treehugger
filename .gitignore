@@ -7,9 +7,10 @@
 /build
 /captures
 
-/app/src/debug/res/values/google_maps_api.xml
-/app/src/release/res/values/google_maps_api.xml
-/app/src/main/res/values/API_keys.xml
+/app/src/debug/
+/app/src/release/
+/app/release/
+/app/google-services.json
 
 # Built application files
 *.apk

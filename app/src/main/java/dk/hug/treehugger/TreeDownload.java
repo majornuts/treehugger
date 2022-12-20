@@ -1,19 +1,11 @@
 package dk.hug.treehugger;
 
-import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.PersistableBundle;
 import android.util.Log;
-import android.widget.ProgressBar;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -29,15 +21,11 @@ import dk.hug.treehugger.model.Root;
  */
 public class TreeDownload extends AsyncTask<Void, Integer, Void> {
     private static final String TAG = "TreeDownload";
-    private final Context context;
-    private final Handler.Callback sa;
     private TreeDownloadCallback treeDownloadCallback;
 
     private boolean isDone = false;
 
-    public TreeDownload(Context context,Handler.Callback callback, TreeDownloadCallback treeDownloadCallback) {
-        this.context = context;
-        this.sa = callback;
+    public TreeDownload(TreeDownloadCallback treeDownloadCallback) {
         this.treeDownloadCallback = treeDownloadCallback;
     }
 
@@ -50,6 +38,9 @@ public class TreeDownload extends AsyncTask<Void, Integer, Void> {
     @Override
     protected Void doInBackground(Void... params) {
         Log.d(TAG, "doInBackground: start ");
+        if (treeDownloadCallback == null || treeDownloadCallback.getContext() == null) {
+            return null;
+        }
         String url = "https://wfs-kbhkort.kk.dk/ows?service=wfs&version=1.0.0&request=GetFeature&typeName=k101:gadetraer&outputFormat=json&SRSNAME=EPSG:4326";
         InputStream is = null;
         Root root = null;
@@ -61,17 +52,11 @@ public class TreeDownload extends AsyncTask<Void, Integer, Void> {
 
             publishProgress(50);
 
-            DBhandler.storeTreeList(context, root);
+            DBhandler.storeTreeList(treeDownloadCallback.getContext(), root);
             publishProgress(100);
             isDone = true;
-        } catch (JsonGenerationException e) {
-            e.printStackTrace();
-        } catch (JsonParseException e) {
-            e.printStackTrace();
-        } catch (JsonMappingException e) {
-            e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Failed to download entries", e);
         }
         return null;
     }
@@ -79,16 +64,13 @@ public class TreeDownload extends AsyncTask<Void, Integer, Void> {
     @Override
     protected void onPostExecute(Void aVoid) {
         Log.d(TAG, "doInBackground: done ");
-        DBhandler.storeTreeState(context, 1);
-
-        Bundle b = new Bundle();
-        b.putBoolean("isDone", isDone);
-        Message m = new Message();
-        m.setData(b);
-        if(!isCancelled()) {
-            sa.handleMessage(m);
+        if (treeDownloadCallback == null) {
+            return;
         }
-        treeDownloadCallback.downloadEnd();
+        DBhandler.storeTreeState(treeDownloadCallback.getContext(), 1);
+        treeDownloadCallback.downloadEnd(isDone);
+
+        treeDownloadCallback = null;
     }
 
 }
