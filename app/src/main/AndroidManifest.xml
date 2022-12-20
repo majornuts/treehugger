@@ -15,7 +15,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_key" />
+            android:value="AIzaSyBJEdjkOOMdYLbLGCkpPDM1Y8gRaT_tToI" />
 
         <meta-data
             android:name="com.google.android.gms.version"
@@ -37,5 +37,4 @@
             </intent-filter>
         </activity>
     </application>
-
 </manifest>
