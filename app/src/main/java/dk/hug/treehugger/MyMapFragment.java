@@ -5,16 +5,12 @@ import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-
-import androidx.core.app.ActivityCompat;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.core.app.ActivityCompat;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -53,9 +49,7 @@ public class MyMapFragment extends AbstractMapFragment implements OnMapReadyCall
 
         FragmentManager fm = getFragmentManager();
 
-        boolean refresh = true;
-        if(savedInstanceState!=null)
-            refresh=false;
+        boolean refresh = savedInstanceState == null;
 
         MapFragment fr = (MapFragment) fm.findFragmentById(R.id.map);
         if(fr==null||refresh) {
@@ -135,7 +129,6 @@ public class MyMapFragment extends AbstractMapFragment implements OnMapReadyCall
     @Override
     public void onStop() {
         downloadCallback = null;
-        DBhandler.closeDB();
         super.onStop();
     }
 
