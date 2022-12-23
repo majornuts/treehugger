@@ -6,16 +6,17 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-
-import androidx.core.app.ActivityCompat;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.gms.maps.*;
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 
@@ -27,7 +28,6 @@ public class HeatMapFragment extends AbstractMapFragment implements OnMapReadyCa
     private DownloadCallback downloadCallback;
 
     public HeatMapFragment() {
-
     }
 
     public static HeatMapFragment newInstance() {
@@ -67,10 +67,10 @@ public class HeatMapFragment extends AbstractMapFragment implements OnMapReadyCa
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(@NonNull GoogleMap googleMap) {
         mMap = googleMap;
 
-        if(moveCamera) {
+        if (moveCamera) {
             LatLng dis = new LatLng(55.678814, 12.564026);
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(dis, 14));
             moveCamera = false;
@@ -89,7 +89,7 @@ public class HeatMapFragment extends AbstractMapFragment implements OnMapReadyCa
         }
 
         mMap.setOnMapLoadedCallback(() -> {
-            mapLoader = new HeatMapLoader(HeatMapFragment.this.getActivity(), HeatMapFragment.this);
+            mapLoader = new HeatMapLoader(HeatMapFragment.this);
 
             if (DBhandler.getTreeState(getActivity()) != 1) {
                 if (checkConnectivity()) {
@@ -105,6 +105,11 @@ public class HeatMapFragment extends AbstractMapFragment implements OnMapReadyCa
                 mapLoader.execute();
             }
         });
+    }
+
+    @Override
+    public Context getActivityContext() {
+        return getActivity();
     }
 
     @Override
@@ -131,7 +136,7 @@ public class HeatMapFragment extends AbstractMapFragment implements OnMapReadyCa
 
         @Override
         public Context getContext() {
-            return HeatMapFragment.this.getActivity();
+            return getActivity();
         }
 
         @Override
@@ -145,7 +150,7 @@ public class HeatMapFragment extends AbstractMapFragment implements OnMapReadyCa
         @Override
         public void downloadEnd(boolean isDone) {
             if (isDone) {
-                mapLoader = new HeatMapLoader(HeatMapFragment.this.getActivity(), HeatMapFragment.this);
+                mapLoader = new HeatMapLoader(HeatMapFragment.this);
                 mMap.clear();
                 mapLoader.execute();
             }

@@ -1,7 +1,5 @@
 package dk.hug.treehugger;
 
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.os.AsyncTask;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -13,18 +11,13 @@ import java.util.List;
 
 import dk.hug.treehugger.core.DBhandler;
 import dk.hug.treehugger.core.Tree;
-import dk.hug.treehugger.model.Feature;
 
 class HeatMapLoader extends AsyncTask<Void, Void, List<LatLng>> {
     private HeatmapTileProvider mProvider;
-    private Context context;
     private HeatMapLoaderCallback callback;
 
-    public HeatMapLoader(Context context, HeatMapLoaderCallback callback) {
-        this.context = context;
+    public HeatMapLoader(HeatMapLoaderCallback callback) {
         this.callback = callback;
-
-
     }
 
     @Override
@@ -32,7 +25,7 @@ class HeatMapLoader extends AsyncTask<Void, Void, List<LatLng>> {
 
         ArrayList<LatLng> list = new ArrayList<>();
 
-        for (Tree tree : DBhandler.getTreeList(context)) {
+        for (Tree tree : DBhandler.getTreeList(callback.getActivityContext())) {
             double lat = tree.getLat();
             double lng = tree.getLon();
             LatLng geo = new LatLng(lat, lng);
@@ -50,5 +43,6 @@ class HeatMapLoader extends AsyncTask<Void, Void, List<LatLng>> {
                     .build();
             callback.updateHeatMap(new TileOverlayOptions().tileProvider(mProvider));
         }
+        callback = null;
     }
 }

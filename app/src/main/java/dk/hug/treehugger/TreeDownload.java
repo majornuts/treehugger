@@ -1,9 +1,6 @@
 package dk.hug.treehugger;
 
 import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -58,6 +55,7 @@ public class TreeDownload extends AsyncTask<Void, Integer, Void> {
         } catch (IOException e) {
             Log.e(TAG, "Failed to download entries", e);
         }
+        DBhandler.storeTreeState(treeDownloadCallback.getContext(), 1);
         return null;
     }
 
@@ -67,7 +65,6 @@ public class TreeDownload extends AsyncTask<Void, Integer, Void> {
         if (treeDownloadCallback == null) {
             return;
         }
-        DBhandler.storeTreeState(treeDownloadCallback.getContext(), 1);
         treeDownloadCallback.downloadEnd(isDone);
 
         treeDownloadCallback = null;

@@ -5,16 +5,12 @@ import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-
-import androidx.core.app.ActivityCompat;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.core.app.ActivityCompat;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -24,11 +20,13 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.maps.android.clustering.ClusterManager;
 
+import java.util.List;
+
 import dk.hug.treehugger.core.DBhandler;
 import dk.hug.treehugger.model.Pos;
 
 
-public class MyMapFragment extends AbstractMapFragment implements OnMapReadyCallback, GoogleMap.OnCameraMoveListener {
+public class MyMapFragment extends AbstractMapFragment implements MapLoaderCallback, OnMapReadyCallback, GoogleMap.OnCameraMoveListener {
     private static final String TAG = "MyMapFragment";
     private MapLoader mapLoader;
     private DownloadCallback downloadCallback;
@@ -53,9 +51,7 @@ public class MyMapFragment extends AbstractMapFragment implements OnMapReadyCall
 
         FragmentManager fm = getFragmentManager();
 
-        boolean refresh = true;
-        if(savedInstanceState!=null)
-            refresh=false;
+        boolean refresh = savedInstanceState == null;
 
         MapFragment fr = (MapFragment) fm.findFragmentById(R.id.map);
         if(fr==null||refresh) {
@@ -111,10 +107,10 @@ public class MyMapFragment extends AbstractMapFragment implements OnMapReadyCall
         mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
             @Override
             public void onMapLoaded() {
-                mClusterManager = new ClusterManager<Pos>(getActivity(), googleMap);
+                mClusterManager = new ClusterManager<>(getActivity(), googleMap);
                 mClusterManager.setRenderer(new PosClusterRenderer(getActivity(), googleMap, mClusterManager));
                 mMap = googleMap;
-                mapLoader = new MapLoader(getActivity(), mClusterManager, googleMap.getProjection());
+                mapLoader = new MapLoader(MyMapFragment.this, googleMap.getProjection());
                 if (DBhandler.getTreeState(getActivity()) != 1) {
                     if (checkConnectivity()) {
                         if (downloadCallback == null) {
@@ -135,26 +131,42 @@ public class MyMapFragment extends AbstractMapFragment implements OnMapReadyCall
     @Override
     public void onStop() {
         downloadCallback = null;
-        DBhandler.closeDB();
         super.onStop();
     }
 
 
     @Override
     public void onCameraMove() {
-        mapLoader = new MapLoader(getActivity(), mClusterManager, mMap.getProjection());
+        mapLoader = new MapLoader(this, mMap.getProjection());
         mapLoader.execute();
     }
 
+    @Override
+    public Context getActivityContext() {
+        return getActivity();
+    }
+
+    @Override
+    public void updateMap(List<Pos> list) {
+        if (mClusterManager == null) {
+            return;
+        }
+        mClusterManager.clearItems();
+        mClusterManager.cluster();
+        mClusterManager.addItems(list);
+    }
+
+
     private class DownloadCallback implements TreeDownloadCallback {
         private final GoogleMap googleMap;
+
         public DownloadCallback(GoogleMap googleMap) {
             this.googleMap = googleMap;
         }
 
         @Override
         public Context getContext() {
-            return MyMapFragment.this.getActivity();
+            return getActivity();
         }
 
         @Override
@@ -168,7 +180,7 @@ public class MyMapFragment extends AbstractMapFragment implements OnMapReadyCall
         @Override
         public void downloadEnd(boolean isDone) {
             if (isDone) {
-                mapLoader = new MapLoader(getActivity(), mClusterManager, googleMap.getProjection());
+                mapLoader = new MapLoader(MyMapFragment.this, googleMap.getProjection());
                 mMap.clear();
                 mapLoader.execute();
             }

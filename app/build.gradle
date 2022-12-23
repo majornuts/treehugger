@@ -12,13 +12,13 @@ android {
         applicationId "dk.hug.treehugger"
         minSdkVersion 22
         targetSdkVersion 33
-        versionCode 9
-        versionName "1.4.1"
+        versionCode 11
+        versionName "1.4.3"
     }
 
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -35,6 +35,5 @@ dependencies {
     implementation 'com.google.maps.android:android-maps-utils:2.4.0'
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    testImplementation 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.13.2'
 }
