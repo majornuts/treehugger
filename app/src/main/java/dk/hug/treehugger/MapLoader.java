@@ -24,7 +24,7 @@ public class MapLoader extends AsyncTask<Void, Void, List<Pos>> {
 
     @Override
     protected List<Pos> doInBackground(Void... params) {
-        List<Tree> treeList = DBhandler.getRegionTreeList(callback.getActivityContext(), projection);
+        List<Tree> treeList = DBhandler.getRegionTreeList(projection);
         List<Pos> posList = new ArrayList<>();
         for (Tree tree : treeList) {
             double lat = tree.getLat();

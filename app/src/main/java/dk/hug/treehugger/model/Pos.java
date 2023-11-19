@@ -1,5 +1,7 @@
 package dk.hug.treehugger.model;
 
+import androidx.annotation.Nullable;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;
 
@@ -40,6 +42,12 @@ public class Pos implements ClusterItem {
     @Override
     public String getSnippet() {
         return latname;
+    }
+
+    @Nullable
+    @Override
+    public Float getZIndex() {
+        return null;
     }
 
 

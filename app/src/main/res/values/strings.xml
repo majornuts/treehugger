@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Copenhagen Street Trees</string>
+    <string name="app_name">Trees</string>
     <string name="title_activity_maps">Map</string>
 
     <string name="title_activity_heat_maps">Heat map</string>

@@ -29,15 +29,6 @@ public class BaseActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         parentLayout = findViewById(R.id.content_root);
-        //todo change to hug that tree?
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -92,7 +83,7 @@ public class BaseActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.action_refresh) {
-            DBhandler.storeTreeState(BaseActivity.this, 0);
+            DBhandler.storeTreeState( 0);
             updateNavigationFragment(currentNavigationItem);
             return true;
         }

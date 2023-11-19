@@ -20,23 +20,27 @@ import dk.hug.treehugger.model.Root;
  * Created by  Mads Fisker on 2016 - 09/03/16  21:44.
  */
 public class DBhandler {
-
     private final static String treeState = "treeState";
     private static final String PREF_NAME = "PREF_NAME";
+    private static Context context;
+
+    public void init(Context context) {
+        this.context = context;
+    }
 
 
-    public static void storeTreeState(Context context, int RootState) {
+    public static void storeTreeState(int RootState) {
         SharedPreferences settings = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor edit = settings.edit();
         edit.putInt(treeState, RootState).apply();
     }
 
-    public static int getTreeState(Context context) {
+    public static int getTreeState() {
         SharedPreferences settings = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         return settings.getInt(treeState, 0);
     }
 
-    public static void storeTreeList(Context context, Root root) {
+    public static void storeTreeList(Root root) {
         TreeDBHelper dbHelper = new TreeDBHelper(context);
 
         try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
@@ -58,7 +62,7 @@ public class DBhandler {
         }
     }
 
-    public static List<Tree> getTreeList(Context context) {
+    public static List<Tree> getTreeList() {
         TreeDBHelper dbHelper = new TreeDBHelper(context);
         String[] projection = new String[]{TreeDBContract.TreeEntry.COLUMN_NAME_TRAE_ART,
                 TreeDBContract.TreeEntry.COLUMN_NAME_DANSK_NAVN,
@@ -85,7 +89,7 @@ public class DBhandler {
     }
 
 
-    public static List<Tree> getRegionTreeList(Context context, Projection projectionRigion) {
+    public static List<Tree> getRegionTreeList(Projection projectionRigion) {
         TreeDBHelper dbHelper = new TreeDBHelper(context);
         String[] projection = new String[]{TreeDBContract.TreeEntry.COLUMN_NAME_TRAE_ART,
                 TreeDBContract.TreeEntry.COLUMN_NAME_DANSK_NAVN,

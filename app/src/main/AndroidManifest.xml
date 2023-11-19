@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="dk.hug.treehugger">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -23,16 +22,15 @@
 
         <meta-data
             android:name="firebase_crashlytics_collection_enabled"
-            android:value="@bool/crashlytics_enabled" />
+            android:value="true" />
 
         <activity
-            android:name=".BaseActivity"
+            android:name=".MainActivity"
             android:label="@string/title_activity_base"
             android:theme="@style/AppTheme.NoActionBar"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

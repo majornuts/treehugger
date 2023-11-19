@@ -61,15 +61,7 @@ public class MyMapFragment extends AbstractMapFragment implements MapLoaderCallb
         } else {
             moveCamera = false;
         }
-
-//        MobileAds.initialize(this.getActivity(), this.getResources().getString(R.string.unit_id));
-//
-//        AdView mAdView = (AdView) view.findViewById(R.id.adView);
-//        AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
-//        mAdView.loadAd(adRequest);
-
         fr.getMapAsync(this);
-
         return view;
     }
 
@@ -111,7 +103,7 @@ public class MyMapFragment extends AbstractMapFragment implements MapLoaderCallb
                 mClusterManager.setRenderer(new PosClusterRenderer(getActivity(), googleMap, mClusterManager));
                 mMap = googleMap;
                 mapLoader = new MapLoader(MyMapFragment.this, googleMap.getProjection());
-                if (DBhandler.getTreeState(getActivity()) != 1) {
+                if (DBhandler.getTreeState() != 1) {
                     if (checkConnectivity()) {
                         if (downloadCallback == null) {
                             downloadCallback = new DownloadCallback(mMap);

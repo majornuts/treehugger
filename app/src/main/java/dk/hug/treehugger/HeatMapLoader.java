@@ -25,7 +25,7 @@ class HeatMapLoader extends AsyncTask<Void, Void, List<LatLng>> {
 
         ArrayList<LatLng> list = new ArrayList<>();
 
-        for (Tree tree : DBhandler.getTreeList(callback.getActivityContext())) {
+        for (Tree tree : DBhandler.getTreeList()) {
             double lat = tree.getLat();
             double lng = tree.getLon();
             LatLng geo = new LatLng(lat, lng);

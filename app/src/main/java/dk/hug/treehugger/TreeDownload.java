@@ -49,13 +49,13 @@ public class TreeDownload extends AsyncTask<Void, Integer, Void> {
 
             publishProgress(50);
 
-            DBhandler.storeTreeList(treeDownloadCallback.getContext(), root);
+            DBhandler.storeTreeList(root);
             publishProgress(100);
             isDone = true;
         } catch (IOException e) {
             Log.e(TAG, "Failed to download entries", e);
         }
-        DBhandler.storeTreeState(treeDownloadCallback.getContext(), 1);
+        DBhandler.storeTreeState(1);
         return null;
     }
 

@@ -91,7 +91,7 @@ public class HeatMapFragment extends AbstractMapFragment implements OnMapReadyCa
         mMap.setOnMapLoadedCallback(() -> {
             mapLoader = new HeatMapLoader(HeatMapFragment.this);
 
-            if (DBhandler.getTreeState(getActivity()) != 1) {
+            if (DBhandler.getTreeState() != 1) {
                 if (checkConnectivity()) {
                     if (downloadCallback == null) {
                         downloadCallback = new DownloadCallback();
