@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
@@ -49,10 +50,8 @@ fun ScreenMap(viewModel: ScreenMapViewModel) {
 fun GoogleMapClustering(viewModel: ScreenMapViewModel) {
     val current = androidx.compose.ui.platform.LocalContext.current
     GoogleMap(
-        modifier = Modifier.fillMaxSize(),
-        cameraPositionState = CameraPositionState(
+        modifier = Modifier.fillMaxSize(), cameraPositionState = CameraPositionState(
             viewModel.get()
-
         )
     ) {
         MapEffect { map ->
@@ -61,14 +60,11 @@ fun GoogleMapClustering(viewModel: ScreenMapViewModel) {
                 items.clear()
                 GatheringTrees(map)
             }
-
             buildGoogleMapOptions {
                 if (ActivityCompat.checkSelfPermission(
-                        current,
-                        Manifest.permission.ACCESS_FINE_LOCATION
+                        current, Manifest.permission.ACCESS_FINE_LOCATION
                     ) == PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
-                        current,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
+                        current, Manifest.permission.ACCESS_COARSE_LOCATION
                     ) == PackageManager.PERMISSION_GRANTED
                 ) {
                     map.isMyLocationEnabled = true
@@ -79,6 +75,7 @@ fun GoogleMapClustering(viewModel: ScreenMapViewModel) {
                 map.uiSettings.isScrollGesturesEnabled = true
                 map.uiSettings.isRotateGesturesEnabled = false
                 map.uiSettings.isTiltGesturesEnabled = true
+
             }
         }
         Clustering(
@@ -90,13 +87,13 @@ fun GoogleMapClustering(viewModel: ScreenMapViewModel) {
                 )
             },
             items = items,
-            // Optional: Handle clicks on clusters, cluster items, and cluster item info windows
             onClusterClick = {
                 Log.d(TAG, "Cluster clicked! $it")
                 false
             },
             onClusterItemClick = {
                 Log.d(TAG, "Cluster item clicked! $it")
+
                 false
             },
             onClusterItemInfoWindowClick = {

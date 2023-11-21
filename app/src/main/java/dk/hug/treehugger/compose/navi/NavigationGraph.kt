@@ -28,7 +28,7 @@ val screenMapViewModel = ScreenMapViewModel()
 fun NavigationGraph(
     navController: NavHostController
 ) {
-    NavHost(navController, startDestination = NavItems.About.screen_route) {
+    NavHost(navController, startDestination = NavItems.Map.screen_route) {
         composable(NavItems.Home.screen_route) {
             ScreenHome()
         }
