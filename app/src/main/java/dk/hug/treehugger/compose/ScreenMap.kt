@@ -1,7 +1,6 @@
 package dk.hug.treehugger.compose
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
 import android.content.pm.PackageManager
 import android.util.Log
@@ -25,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
@@ -83,7 +81,7 @@ fun GoogleMapClustering(viewModel: ScreenMapViewModel) {
                 Icon(
                     bitmap = ImageBitmap.imageResource(R.drawable.tree),
                     contentDescription = "Info",
-                    tint = Color(0xFF477217),
+                    tint = Color(0xFF0B6411),
                 )
             },
             items = items,
@@ -105,7 +103,7 @@ fun GoogleMapClustering(viewModel: ScreenMapViewModel) {
                     modifier = Modifier
                         .padding(5.dp, 0.dp, 5.dp, 5.dp)
                         .size(40.dp)
-                        .background(Color(0xFF477217), CircleShape)
+                        .background(Color(0xFF0B6411), CircleShape)
                 ) {
                     Text(
                         text = cluster.size.toString(),

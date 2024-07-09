@@ -1,6 +1,5 @@
 package dk.hug.treehugger.compose.navi
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,7 +16,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import dk.hug.treehugger.compose.ScreenAbout
 import dk.hug.treehugger.compose.ScreenHeat
-import dk.hug.treehugger.compose.ScreenHome
 import dk.hug.treehugger.compose.ScreenMap
 import dk.hug.treehugger.compose.ScreenMapViewModel
 
@@ -29,9 +27,9 @@ fun NavigationGraph(
     navController: NavHostController
 ) {
     NavHost(navController, startDestination = NavItems.Map.screen_route) {
-        composable(NavItems.Home.screen_route) {
-            ScreenHome()
-        }
+//        composable(NavItems.Home.screen_route) {
+//            ScreenHome()
+//        }
         composable(NavItems.Map.screen_route) {
             ScreenMap(screenMapViewModel)
         }
@@ -48,7 +46,7 @@ fun NavigationGraph(
 fun BottomAppBarWithNavigation(navController: NavHostController, modifier: Modifier = Modifier) {
     BottomAppBar() {
         Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-            NavigationItem(navController, NavItems.Home)
+//            NavigationItem(navController, NavItems.Home)
             NavigationItem(navController, NavItems.Map)
             NavigationItem(navController, NavItems.List)
             NavigationItem(navController, NavItems.About)
