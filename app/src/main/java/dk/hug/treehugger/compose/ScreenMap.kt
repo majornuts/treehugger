@@ -85,8 +85,7 @@ fun GoogleMapClustering(viewModel: ScreenMapViewModel) {
                 )
             },
             items = items,
-            onClusterClick = {
-                Log.d(TAG, "Cluster clicked! $it")
+            onClusterClick = { cluster ->
                 false
             },
             onClusterItemClick = {
