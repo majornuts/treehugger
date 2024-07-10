@@ -46,7 +46,6 @@ fun NavigationGraph(
 fun BottomAppBarWithNavigation(navController: NavHostController, modifier: Modifier = Modifier) {
     BottomAppBar() {
         Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-//            NavigationItem(navController, NavItems.Home)
             NavigationItem(navController, NavItems.Map)
             NavigationItem(navController, NavItems.List)
             NavigationItem(navController, NavItems.About)
@@ -59,21 +58,18 @@ fun NavigationItem(
     navController: NavHostController,
     screen: NavItems,
 ) {
-
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
-    var selected = currentDestination?.navigatorName == screen.screen_route
 
     IconButton(
         onClick = {
             navController.navigate(screen.screen_route)
-            selected = true
         }
     ) {
         Icon(
             imageVector = screen.icon,
             contentDescription = screen.title,
-            tint = if (selected) Color.White else Color.Black
+            tint = if (screen.screen_route == currentDestination?.route) Color(0xFF0B6411) else Color.Gray
         )
     }
 }

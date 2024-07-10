@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.runtime.Composable
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
@@ -13,9 +12,9 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun ScreenAbout() {
 
-    Column(modifier = Modifier.padding(16.dp)) {
+    Column(modifier = Modifier.padding(10.dp)) {
+        Spacer(modifier = Modifier.size(10.dp))
         Text("About:")
-
         Text(text = "The app is made by a group of volunteers, and is not affiliated with Københavns komune.")
         Spacer(modifier = Modifier.size(10.dp))
         Text(text = "Library used:")
@@ -40,4 +39,3 @@ fun ScreenAbout() {
         Text(text = "Remember to hug a Tree ones in a while")
     }
 }
-

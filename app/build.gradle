@@ -35,11 +35,11 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.14"
     }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
+//    packaging {
+//        resources {
+//            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+//        }
+//    }
 }
 
 dependencies {
@@ -69,6 +69,7 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
     implementation("com.google.maps.android:maps-compose:4.2.0")
     implementation 'com.google.maps.android:maps-compose-utils:4.2.0'
+    implementation("com.airbnb.android:lottie-compose:6.4.1")
 
 
     testImplementation 'junit:junit:4.13.2'
