@@ -24,13 +24,10 @@ fun ScreenAbout() {
 
 
     Column(modifier = Modifier.padding(10.dp)) {
-
         Spacer(modifier = Modifier.size(10.dp))
         Text(text = "The app is made by a group of volunteers." , fontSize = 20.sp)
         Spacer(modifier = Modifier.size(10.dp))
         Text(text = "Remember to hug a Tree ones in a while")
-
-
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
