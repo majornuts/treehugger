@@ -27,9 +27,6 @@ fun NavigationGraph(
     navController: NavHostController
 ) {
     NavHost(navController, startDestination = NavItems.Map.screen_route) {
-//        composable(NavItems.Home.screen_route) {
-//            ScreenHome()
-//        }
         composable(NavItems.Map.screen_route) {
             ScreenMap(screenMapViewModel)
         }
