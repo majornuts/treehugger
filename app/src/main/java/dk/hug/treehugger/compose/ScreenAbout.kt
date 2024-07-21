@@ -22,9 +22,14 @@ fun ScreenAbout() {
 
         Spacer(modifier = Modifier.fillMaxHeight(0.4f))
         Text(
+            text = "Made by volunteers, with no affiliation with Copenhagen Municipality.",
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
+        Text(
             text = "Remember to hug a tree once in a while",
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
+
 
 
         Row(
