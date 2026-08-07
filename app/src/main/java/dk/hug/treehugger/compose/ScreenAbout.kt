@@ -18,22 +18,29 @@ import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import dk.hug.treehugger.R
 
 @Composable
 fun ScreenAbout() {
 
     Column {
-        Spacer(modifier = Modifier.fillMaxHeight(0.3f))
+        Spacer(modifier = Modifier.fillMaxHeight(0.2f))
         Text(
-            text = "Made by volunteers, with no affiliation with Copenhagen Municipality.",
-            modifier = Modifier.align(Alignment.CenterHorizontally).padding(0.dp,0.dp, 0.dp,8.dp)
+            text = "Created by volunteers",
+            fontSize = 20.sp,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
+        Text(
+            text = "No affiliation with Copenhagen Municipality",
+            modifier = Modifier.align(Alignment.CenterHorizontally).padding(0.dp,12.dp, 0.dp,2.dp)
         )
         Text(
             text = "Data open to public use:",
-            modifier = Modifier.align(Alignment.CenterHorizontally).padding(0.dp,4.dp, 0.dp,2.dp)
+            modifier = Modifier.align(Alignment.CenterHorizontally).padding(0.dp,12.dp, 0.dp,2.dp)
         )
         Text(
             text = buildAnnotatedString {
@@ -50,7 +57,8 @@ fun ScreenAbout() {
         )
         Text(
             text = "Remember to hug a tree once in a while",
-            modifier = Modifier.align(Alignment.CenterHorizontally).padding(0.dp,4.dp, 0.dp,4.dp)
+            fontStyle = FontStyle.Italic,
+            modifier = Modifier.align(Alignment.CenterHorizontally).padding(0.dp,24.dp, 0.dp,4.dp)
         )
 
         Row(
