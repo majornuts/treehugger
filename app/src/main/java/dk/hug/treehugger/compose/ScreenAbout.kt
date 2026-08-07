@@ -29,10 +29,10 @@ fun ScreenAbout() {
         Spacer(modifier = Modifier.fillMaxHeight(0.3f))
         Text(
             text = "Made by volunteers, with no affiliation with Copenhagen Municipality.",
-            modifier = Modifier.align(Alignment.CenterHorizontally).padding(4.dp,0.dp, 4.dp,8.dp)
+            modifier = Modifier.align(Alignment.CenterHorizontally).padding(0.dp,0.dp, 0.dp,8.dp)
         )
         Text(
-            text = "Data open for public:",
+            text = "Data open to public use:",
             modifier = Modifier.align(Alignment.CenterHorizontally).padding(0.dp,4.dp, 0.dp,2.dp)
         )
         Text(
